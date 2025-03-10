@@ -35,10 +35,12 @@ Map nearby physical locations with reliable internet access where content can be
 
 ### Tech Stack
 
-Frontend: Vite + ReactJS <br/>
-Backend: Python + FastAPI <br/>
-Cloud: GCP (Cloud Storage, Firestore, Firebase, Text-to speech, Speech-to-text, IOT core, Google Maps API, Cloud Run, Twilio API) <br/>
-Deployment: Google App Engine, Vercel
+**Frontend**: Vite + ReactJS <br/>
+**Backend**: Python + FastAPI <br/>
+**Cloud**: GCP (Cloud Storage, Firestore, Firebase, Text-to speech, Speech-to-text, IOT core, Google Maps API, Cloud Run, Twilio API) <br/>
+**Deployment**: Google App Engine, Vercel
+
+[Subject to modifications👆🏻]
 
 ### User Flow
 
