@@ -6,6 +6,8 @@ import Register from './pages/Register';
 import Footer from './components/Footer';
 import { Container } from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
+import Assessment from './components/Assessment';
+import ExamPrep from './components/ExamPrep';
 
 function App() {
   return (
@@ -16,6 +18,8 @@ function App() {
           <Route path="/" element={<Dashboard />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
+          <Route path="/assessment" element={<Assessment/>} />
+          <Route path="/exam-preparation" element={<ExamPrep/>} />
         </Routes>
       </Container>
       <Footer />
