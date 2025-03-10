@@ -1,19 +1,26 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import Dashboard from './components/Dashboard';
+import NavigationBar from './components/Navbar';
+import Login from './pages/Login';
+import Register from './pages/Register';
+import Footer from './components/Footer';
+import { Container } from 'react-bootstrap';
+import 'bootstrap/dist/css/bootstrap.min.css';
 
 function App() {
-  const [count, setCount] = useState(0)
-
   return (
-    <>
-      <div>
-        <p>Hi Khushi!!</p>
-      </div>
-      
-    </>
-  )
+    <Router>
+      <NavigationBar />
+      <Container className="mt-4">
+        <Routes>
+          <Route path="/" element={<Dashboard />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
+        </Routes>
+      </Container>
+      <Footer />
+    </Router>
+  );
 }
 
-export default App
+export default App;
