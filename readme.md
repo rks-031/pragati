@@ -1,12 +1,12 @@
 ## Pragati - Empowering Rural India Through Accessible Learning
 
-🔴The Problem <br/>
+### 🔴The Problem
 65-70% of children (ages 5-15) in rural India, especially in J&K, UP, Bihar, Rajasthan, and the North-East, lack quality education due to:
  1. Minimal interactive teaching & structured curriculum.
  2. Poor learning environments & untrained teachers.
  3. Limited or no internet access for self-learning. Also, no clear guidance on what or how to study.
 
-⚠️ Result? <br/>
+### ⚠️ Result?
 Even motivated students struggle, limiting their future opportunities.
 
 ### Our Solution: Pragati
