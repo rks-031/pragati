@@ -18,20 +18,23 @@
   
   .subject-cards {
     display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 20px;
+    flex-direction: row;
+    gap: 15px;
+    overflow-x: auto;  /* enables horizontal scrolling if cards exceed viewport */
+    padding-bottom: 10px;  /* optional spacing for scroll bar */
     width: 100%;
-    max-width: 500px;
+    max-width: 900px;  /* increased from 500px to allow wider cards */
   }
+ 
   
   .subject-card {
-    background: #fff;
-    border-radius: 8px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    background-color: white;
+    border-radius: 12px;
+    padding: 10px;
+    width: 280px;  /* increased from 250px to make cards wider */
+    min-height: 180px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
     overflow: hidden;
-    width: 350px; /* increased width */
-    height: 300px; /* increased height */
     display: flex;
     flex-direction: row;
   }

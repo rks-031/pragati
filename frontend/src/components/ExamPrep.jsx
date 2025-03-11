@@ -2,63 +2,79 @@ import React from 'react';
 import '../styles/exam.css';
 
 const ExamPrep = () => {
-  const subjects = [
-    {
-      name: 'HISTORY',
-      color: 'purple',
-      credit: '02',
-      years: ['2024', '2023']
-    },
-    {
-      name: 'ENGLISH',
-      color: 'pink',
-      credit: '02',
-      years: ['2024', '2023']
-    },
-    {
-      name: 'SCIENCE',
-      color: 'blue',
-      credit: '02',
-      years: ['2024', '2023']
-    }
-  ];
-
   return (
     <div className="exam-prep-container">
       <h1 className="exam-prep-title">EXAM PREPARATION</h1>
+      
       <div className="subject-cards">
-        {subjects.map((subject, index) => (
-          <div key={index} className={`subject-card ${subject.color}`}>
-            <div className="card-left">
-              <h2 className="subject-title">{subject.name}</h2>
-              
-              <div className="notes-button">
-                <span className="icon">📚</span>
-                <span className="button-text">NOTES</span>
-              </div>
-              
-              <div className="pyq-items">
-                {subject.years.map((year, yearIndex) => (
-                  <div key={yearIndex} className="pyq-item">
-                    <span className="icon">📄</span>
-                    <span className="pyq-text">PYQ BANK {year}</span>
-                  </div>
-                ))}
-              </div>
+        {/* History Card */}
+        <div className="subject-card purple">
+          <div className="card-left">
+            <h2 className="subject-title">HISTORY</h2>
+            
+            <div className="notes-button" style={{ textAlign: 'left' }}>
+              <span className="icon">📚</span> NOTES
             </div>
             
-            <div className="card-right">
-              <div className="syllabus-box">
-                <div className="syllabus-label">SYLLABUS</div>
-                <div className="credit-label">CREDIT {subject.credit}</div>
+            <div className="pyq-items">
+              <div className="pyq-item">
+                <span className="icon">📄</span>
+                <span className="pyq-text">PYQ BANK 2024</span>
               </div>
               
-              <div className="demo-quiz-button">
-                <span className="quiz-text">DEMO<br />QUIZ</span>
+              <div className="pyq-item">
+                <span className="icon">📄</span>
+                <span className="pyq-text">PYQ BANK 2023</span>
               </div>
             </div>
           </div>
-        ))}
+        </div>
+        
+        {/* English Card */}
+        <div className="subject-card pink">
+          <div className="card-left">
+            <h2 className="subject-title">ENGLISH</h2>
+            
+            <div className="notes-button" style={{ textAlign: 'left' }}>
+              <span className="icon">📚</span> NOTES
+            </div>
+            
+            <div className="pyq-items">
+              <div className="pyq-item">
+                <span className="icon">📄</span>
+                <span className="pyq-text">PYQ BANK 2024</span>
+              </div>
+              
+              <div className="pyq-item">
+                <span className="icon">📄</span>
+                <span className="pyq-text">PYQ BANK 2023</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        {/* Science Card */}
+        <div className="subject-card blue">
+          <div className="card-left">
+            <h2 className="subject-title">SCIENCE</h2>
+            
+            <div className="notes-button" style={{ textAlign: 'left' }}>
+              <span className="icon">📚</span> NOTES
+            </div>
+            
+            <div className="pyq-items">
+              <div className="pyq-item">
+                <span className="icon">📄</span>
+                <span className="pyq-text">PYQ BANK 2024</span>
+              </div>
+              
+              <div className="pyq-item">
+                <span className="icon">📄</span>
+                <span className="pyq-text">PYQ BANK 2023</span>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );
