@@ -2,19 +2,26 @@ import React from 'react';
 import '../styles/assessment.css';
 import studyingImage from '../assets/studying.webp';
 
+// Import subject images from assets folder
+import maths from '../assets/maths.png';
+import hindi from '../assets/hindi.png';
+import evs from '../assets/evs.png';
+import history from '../assets/history.png';
+import science from '../assets/science.png';
+
 const AssessmentDashboard = () => {
-  // Previous assessment data
+  // Previous assessment data with updated images
   const previousAssessments = [
-    { subject: 'Maths', score: '07/10', color: '#A4B8C4', image: 'https://placehold.co/100x100?text=Books' },
-    { subject: 'Hindi', score: '08/10', color: '#D9A566', image: 'https://placehold.co/100x100?text=Notebook' },
-    { subject: 'E.V.S', score: '09/10', color: '#C99A9A', image: 'https://placehold.co/100x100?text=Books' }
+    { subject: 'Maths', score: '07/10', color: '#A4B8C4', image: maths },
+    { subject: 'Hindi', score: '08/10', color: '#D9A566', image: hindi },
+    { subject: 'E.V.S', score: '09/10', color: '#C99A9A', image: evs    }
   ];
 
-  // Upcoming assessment data
+  // Upcoming assessment data with updated images
   const upcomingAssessments = [
-    { subject: 'English', score: '00/10', color: '#A4B8C4', image: 'https://placehold.co/100x100?text=Books' },
-    { subject: 'History', score: '00/10', color: '#D9A566', image: 'https://placehold.co/100x100?text=Books' },
-    { subject: 'Science', score: '00/10', color: '#C99A9A', image: 'https://placehold.co/100x100?text=Books' }
+    { subject: 'English', score: '00/10', color: '#A4B8C4', image: maths },
+    { subject: 'History', score: '00/10', color: '#D9A566', image: history },
+    { subject: 'Science', score: '00/10', color: '#C99A9A', image: science }
   ];
 
   // Student report data
@@ -29,13 +36,11 @@ const AssessmentDashboard = () => {
   return (
     <div className="assessment-dashboard">
       <div className="dashboard-left">
-        <div className="dashboard-header-image"
-         style={{ height: '300px' }}>
+        <div className="dashboard-header-image" style={{ height: '300px' }}>
           <img 
             src={studyingImage} 
             alt="Student studying at a desk with computer and books" 
             className="header-illustration"
-           
           />
         </div>
         
@@ -44,7 +49,7 @@ const AssessmentDashboard = () => {
           {previousAssessments.map((assessment, index) => (
             <div className="assessment-card" key={index}>
               <div className="card-image">
-                <img src={assessment.image} alt={`${assessment.subject} books`} />
+                <img src={assessment.image} alt={`${assessment.subject} resources`} />
               </div>
               <div className="card-details">
                 <span className="subject-name">{assessment.subject}</span>
@@ -61,7 +66,7 @@ const AssessmentDashboard = () => {
           {upcomingAssessments.map((assessment, index) => (
             <div className="assessment-card" key={index}>
               <div className="card-image">
-                <img src={assessment.image} alt={`${assessment.subject} books`} />
+                <img src={assessment.image} alt={`${assessment.subject} resources`} />
               </div>
               <div className="card-details">
                 <span className="subject-name">{assessment.subject}</span>
@@ -96,11 +101,11 @@ const AssessmentDashboard = () => {
               <span className="report-value">{studentReport.passedIn}</span>
             </div>
             <div className="report-item">
-              <span className="report-label">failed in:</span>
+              <span className="report-label">Failed in:</span>
               <span className="report-value">{studentReport.failedIn}</span>
             </div>
             <div className="grade-container">
-              <span className="grade-label">grade:</span>
+              <span className="grade-label">Grade:</span>
               <span className="grade-value">{studentReport.grade}</span>
             </div>
           </div>

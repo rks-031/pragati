@@ -49,7 +49,8 @@
     background-color: white;
     border-radius: 12px;
     padding: 10px;
-    width: 100px;
+    width: 150px;      /* increased width from 100px to 150px */
+    min-height: 140px;  /* added a min-height to increase the card's height */
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
   }
   
