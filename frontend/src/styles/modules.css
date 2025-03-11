@@ -1,0 +1,131 @@
+.modules-container {
+  background-color: #4A3B4A;
+  padding: 20px;
+  min-height: 100vh;
+  font-family: 'Arial', sans-serif;
+}
+
+.modules-header {
+  color: white;
+  text-align: center;
+  font-size: 24px;
+  margin-bottom: 20px;
+  font-weight: bold;
+}
+
+.subject-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.subject-btn {
+  background-color: rgba(255, 255, 255, 0.2);
+  color: white;
+  border: none;
+  padding: 15px;
+  border-radius: 10px;
+  font-size: 18px;
+  text-align: left;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.subject-btn:hover {
+  background-color: rgba(255, 255, 255, 0.3);
+}
+
+.content-section {
+  background-color: white;
+  border-radius: 15px;
+  padding: 20px;
+  margin-top: 20px;
+}
+
+.content-title {
+  color: #4A3B4A;
+  font-size: 24px;
+  margin-bottom: 20px;
+}
+
+.topic-section {
+  background-color: #F0EEF0;
+  border-radius: 10px;
+  padding: 15px;
+  margin-bottom: 20px;
+}
+
+.topic-title {
+  color: #333;
+  font-size: 20px;
+  margin-bottom: 15px;
+}
+
+.videos-container {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 15px;
+}
+
+.video-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.video-thumbnail {
+  position: relative;
+  width: 100%;
+  background-color: navy;
+  border-radius: 5px;
+  overflow: hidden;
+}
+
+.video-img {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.play-button {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: white;
+  font-size: 24px;
+  background-color: rgba(255, 0, 0, 0.8);
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.video-label {
+  color: #333;
+  margin: 5px 0;
+  font-size: 14px;
+}
+
+.pdf-link {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  color: #333;
+  text-decoration: none;
+  font-size: 14px;
+}
+
+.pdf-icon {
+  width: 24px;
+  height: 24px;
+}
+
+@media (max-width: 768px) {
+  .videos-container {
+    grid-template-columns: 1fr;
+  }
+}

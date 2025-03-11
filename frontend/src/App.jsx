@@ -8,6 +8,7 @@ import { Container } from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import Assessment from './components/Assessment';
 import ExamPrep from './components/ExamPrep';
+import Modules from './components/Modules';
 
 function App() {
   return (
@@ -20,6 +21,7 @@ function App() {
           <Route path="/register" element={<Register />} />
           <Route path="/assessment" element={<Assessment/>} />
           <Route path="/exam-preparation" element={<ExamPrep/>} />
+          <Route path="/modules-courses" element={<Modules/>} />
         </Routes>
       </Container>
       <Footer />
