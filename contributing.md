@@ -2,10 +2,10 @@
 
 1. clone the repo
 2. install dependencies
-```bash
+```shell
 npm install
 ```
 3. run the following
-```bash
+```shell
 npm run dev
 ```
