@@ -1,198 +1,93 @@
 .exam-prep-container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding: 40px 20px;
-    background-color: #f8f9fa;
-    min-height: 100vh;
-    font-family: 'Arial', sans-serif;
-  }
-  
-  .exam-prep-title {
-    font-size: 2.5rem;
-    font-weight: bold;
-    text-align: center;
-    margin-bottom: 30px;
-    color: #333;
-  }
-  
+  background-color: #f9f9f9;
+  padding: 20px;
+  min-height: 100vh;
+  font-family: 'Arial', sans-serif;
+}
+
+.exam-prep-title {
+  color: #4A3B4A;
+  text-align: center;
+  font-size: 24px;
+  margin-bottom: 20px;
+  font-weight: bold;
+}
+
+.subject-cards {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.subject-card {
+  background-color: white;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+}
+
+.purple {
+  border-left: 5px solid #6A5ACD; /* Purple color for History */
+}
+
+.pink {
+  border-left: 5px solid #FF69B4; /* Pink color for English */
+}
+
+.teal {
+  border-left: 5px solid #20B2AA; /* Teal color for Science */
+}
+
+.card-content {
+  display: flex;
+  flex-direction: column;
+}
+
+.subject-title {
+  font-size: 20px;
+  margin-bottom: 10px;
+  font-weight: bold;
+}
+
+.notes-item, .pyq-item {
+  margin: 5px 0;
+  font-size: 16px;
+}
+
+.syllabus-button {
+  margin-top: auto; /* Pushes the syllabus button to the bottom */
+  background-color: #E0E0E0;
+  padding: 10px;
+  border-radius: 5px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.credit-label {
+  font-size: 12px;
+  color: #666;
+}
+
+.demo-quiz-button {
+  background-color: #c300ff; /* Orange color for the button */
+  color: white;
+  border: none;
+  padding: 10px;
+  border-radius: 5px;
+  font-size: 16px;
+  cursor: pointer;
+  margin-top: 10px;
+}
+
+.demo-quiz-button:hover {
+  background-color: #FF6347; /* Lighter orange on hover */
+}
+
+@media (max-width: 768px) {
   .subject-cards {
-    display: flex;
-    flex-direction: row;
-    gap: 15px;
-    overflow-x: auto;  /* enables horizontal scrolling if cards exceed viewport */
-    padding-bottom: 10px;  /* optional spacing for scroll bar */
-    width: 100%;
-    max-width: 900px;  /* increased from 500px to allow wider cards */
-  }
- 
-  
-  .subject-card {
-    background-color: white;
-    border-radius: 12px;
-    padding: 10px;
-    width: 280px;  /* increased from 250px to make cards wider */
-    min-height: 180px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
-    overflow: hidden;
-    display: flex;
-    flex-direction: row;
-  }
-  
-  .subject-card.purple {
-    border-top: 5px solid #6f42c1;
-  }
-  
-  .subject-card.pink {
-    border-top: 5px solid #d63384;
-  }
-  
-  .subject-card.blue {
-    border-top: 5px solid #0d6efd;
-  }
-  
-  .card-left, .card-right {
-    padding: 15px;
-  }
-  
-  .card-left {
-    flex: 2;
-    display: flex;
     flex-direction: column;
-    justify-content: space-between;
   }
-  
-  .card-right {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    align-items: center;
-    border-left: 1px solid #e9ecef;
-  }
-  
-  .subject-title {
-    margin-bottom: 10px;
-    font-size: 1.5rem;
-    color: #333;
-  }
-  
-  .notes-button {
-    background-color: #f1f3f5;
-    border-radius: 4px;
-    padding: 8px;
-    text-align: center;
-    margin-bottom: 10px;
-    cursor: pointer;
-    transition: background-color 0.3s;
-  }
-  
-  .notes-button:hover {
-    background-color: #e9ecef;
-  }
-  
-  .notes-button .icon {
-    font-size: 1.2rem;
-    margin-right: 5px;
-  }
-  
-  .pyq-items {
-    margin-top: 10px;
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-  }
-  
-  .pyq-item {
-    display: flex;
-    align-items: center;
-    margin-bottom: 5px;
-    background-color: rgba(255, 255, 255, 0.7);
-    border-radius: 8px;
-    padding: 8px 12px;
-    cursor: pointer;
-  }
-  
-  .pyq-item .icon {
-    margin-right: 5px;
-  }
-  
-  .pyq-text {
-    font-size: 0.9rem;
-    color: #555;
-  }
-  
-  .syllabus-box {
-    background-color: #f1f3f5;
-    border-radius: 4px;
-    padding: 10px;
-    margin-bottom: 10px;
-    text-align: center;
-    width: 100%;
-  }
-  
-  .syllabus-label {
-    font-weight: bold;
-    margin-bottom: 5px;
-    font-size: 14px;
-    color: #555;
-  }
-  
-  .credit-label {
-    font-size: 0.9rem;
-    color: #333;
-  }
-  
-  .demo-quiz-button {
-    background-color: #0d6efd;
-    color: #fff;
-    border-radius: 4px;
-    padding: 10px;
-    text-align: center;
-    font-weight: bold;
-    cursor: pointer;
-    transition: background-color 0.3s;
-    height: 60px;
-  }
-  
-  .demo-quiz-button:hover {
-    background-color: #0b5ed7;
-  }
-  
-  .quiz-text {
-    color: white;
-    font-size: 14px;
-    font-weight: bold;
-    text-align: center;
-    line-height: 1.2;
-  }
-  
-  /* Subject-specific button colors */
-  .subject-card.purple .demo-quiz-button {
-    background-color: #8a2be2;
-  }
-  
-  .subject-card.pink .demo-quiz-button {
-    background-color: #db7093;
-  }
-  
-  .subject-card.blue .demo-quiz-button {
-    background-color: #4682b4;
-  }
-  
-  /* Responsive design */
-  @media (max-width: 600px) {
-    .subject-card {
-      flex-direction: column;
-      height: auto;
-    }
-    
-    .card-right {
-      flex-direction: row;
-      margin-top: 15px;
-    }
-    
-    .syllabus-box, .demo-quiz-button {
-      flex: 1;
-    }
-  }
+}
