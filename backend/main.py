@@ -1,10 +1,13 @@
 from typing import List
+from venv import logger
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 import jwt
 from config import read_yaml
 from routes.auth_routes import router as auth_router
 from config.config import JWT_ALGORITHM, JWT_SECRET
+from logger.logging import get_logger
+logger = get_logger(__name__)
 excluded_paths = read_yaml.EXCLUDED_APIS
 
 app = FastAPI()
@@ -47,16 +50,19 @@ async def AuthMiddleware(request: Request, call_next):
 
         # Skip auth check if path is excluded
         if is_excluded_path(path, method, excluded_paths) or path.startswith("/docs"):
+            logger.info(f"Skipping auth check for path: {path}")
             return await call_next(request)
 
         # Check for the JWT in an HTTP‑only cookie
         token = request.cookies.get("access_token")
         if not token:
+            logger.error("Not authenticated")
             return JSONResponse(status_code=401, content={"detail": "Not authenticated"})
 
         try:
             payload = jwt.decode(token, JWT_SECRET, algorithms=[JWT_ALGORITHM])
             request.state.user_id = payload.get("user_id")
+            logger.info(f"Authenticated user: {request.state.user_id}")
         except jwt.ExpiredSignatureError:
             return JSONResponse(status_code=401, content={"detail": "Token expired"})
         except Exception as e:
