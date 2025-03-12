@@ -1,0 +1,7 @@
+app:
+  EXCLUDED_APIS:
+  - path: /api/v1/login
+    method: POST
+  - path: /api/v1/register
+    method: POST
+  
