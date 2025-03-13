@@ -47,9 +47,17 @@ class State:
 async def AuthMiddleware(request: Request, call_next):
         path = request.url.path
         method = request.method
+        if (
+        request.url.path.startswith("/openapi.json")
+        or request.url.path.startswith("/favicon.ico")
+        or request.url.path.startswith("/docs")
+     ):
+            logger.debug(f"Skipping session check for {request.url.path}")
+            response = await call_next(request)
+            return response
 
         # Skip auth check if path is excluded
-        if is_excluded_path(path, method, excluded_paths) or path.startswith("/docs"):
+        if is_excluded_path(path, method, excluded_paths):
             logger.info(f"Skipping auth check for path: {path}")
             return await call_next(request)
 
