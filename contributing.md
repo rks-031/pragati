@@ -10,8 +10,15 @@ npm install
 npm run dev
 ```
 ## To run the backend
-1. cd backend
-2. python -m venv venv
-3. venv\Scripts\activate
-4. pip install -r requirements.txt
-5. python run.py
+```shell
+cd backend
+python -m venv venv
+```   
+```shell
+venv\Scripts\activate
+```
+```
+pip install -r requirements.txt
+python run.py
+
+```
