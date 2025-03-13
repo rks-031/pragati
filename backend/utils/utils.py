@@ -19,7 +19,7 @@ def verify_pin(plain_pin: str, hashed_pin: str) -> bool:
 def create_jwt_token(user_id: str) -> str:
     payload = {
         "user_id": user_id,
-        "exp": datetime.datetime.now(datetime.timezone.utc) + datetime.timedelta(seconds=JWT_EXP_DELTA_SECONDS)
+        "exp": datetime.datetime.now(datetime.timezone.utc) + datetime.timedelta(seconds=int(JWT_EXP_DELTA_SECONDS))
     }
     token = jwt.encode(payload, JWT_SECRET, algorithm=JWT_ALGORITHM)
     return token
