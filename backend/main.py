@@ -43,32 +43,32 @@ class State:
         self.user_id = None
         self.auth_call = None
 
-@app.middleware("http")
-async def AuthMiddleware(request: Request, call_next):
-        path = request.url.path
-        method = request.method
+# @app.middleware("http")
+# async def AuthMiddleware(request: Request, call_next):
+#         path = request.url.path
+#         method = request.method
 
-        # Skip auth check if path is excluded
-        if is_excluded_path(path, method, excluded_paths) or path.startswith("/docs"):
-            logger.info(f"Skipping auth check for path: {path}")
-            return await call_next(request)
+#         # Skip auth check if path is excluded
+#         if is_excluded_path(path, method, excluded_paths) or path.startswith("/docs"):
+#             logger.info(f"Skipping auth check for path: {path}")
+#             return await call_next(request)
 
-        # Check for the JWT in an HTTP‑only cookie
-        token = request.cookies.get("access_token")
-        if not token:
-            logger.error("Not authenticated")
-            return JSONResponse(status_code=401, content={"detail": "Not authenticated"})
+#         # Check for the JWT in an HTTP‑only cookie
+#         token = request.cookies.get("access_token")
+#         if not token:
+#             logger.error("Not authenticated")
+#             return JSONResponse(status_code=401, content={"detail": "Not authenticated"})
 
-        try:
-            payload = jwt.decode(token, JWT_SECRET, algorithms=[JWT_ALGORITHM])
-            request.state.user_id = payload.get("user_id")
-            logger.info(f"Authenticated user: {request.state.user_id}")
-        except jwt.ExpiredSignatureError:
-            return JSONResponse(status_code=401, content={"detail": "Token expired"})
-        except Exception as e:
-            return JSONResponse(status_code=401, content={"detail": "Invalid token"})
+#         try:
+#             payload = jwt.decode(token, JWT_SECRET, algorithms=[JWT_ALGORITHM])
+#             request.state.user_id = payload.get("user_id")
+#             logger.info(f"Authenticated user: {request.state.user_id}")
+#         except jwt.ExpiredSignatureError:
+#             return JSONResponse(status_code=401, content={"detail": "Token expired"})
+#         except Exception as e:
+#             return JSONResponse(status_code=401, content={"detail": "Invalid token"})
 
-        return await call_next(request)
+#         return await call_next(request)
         
 
 app.include_router(auth_router, prefix="/api/v1")

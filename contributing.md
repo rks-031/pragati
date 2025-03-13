@@ -6,18 +6,18 @@
 npm install
 ```
 3. run the following
-```shell
+```bash
 npm run dev
 ```
 ## To run the backend
-```shell
+```bash
 cd backend
 python -m venv venv
 ```   
-```shell
+```bash
 venv\Scripts\activate
 ```
-```
+```bash
 pip install -r requirements.txt
 python run.py
 
