@@ -1,13 +1,9 @@
 import datetime
-import random
-from fastapi import FastAPI, HTTPException, Depends, Request, Response
-
 from passlib.context import CryptContext
 import jwt
 from config.config import JWT_ALGORITHM, JWT_EXP_DELTA_SECONDS, JWT_SECRET
 
 
-app = FastAPI()
 
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
