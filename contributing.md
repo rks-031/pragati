@@ -9,3 +9,16 @@ npm install
 ```shell
 npm run dev
 ```
+## To run the backend
+```shell
+cd backend
+python -m venv venv
+```   
+```shell
+venv\Scripts\activate
+```
+```
+pip install -r requirements.txt
+python run.py
+
+```
