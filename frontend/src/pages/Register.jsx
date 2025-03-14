@@ -1,7 +1,13 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Container, Form, Button, Row, Col } from 'react-bootstrap';
 
 function Register() {
+  const [selectedClass, setSelectedClass] = useState('');
+
+  const handleClassChange = (e) => {
+    setSelectedClass(e.target.value);
+  };
+
   return (
     <Container className="mt-5">
       <Row className="justify-content-center">
@@ -14,7 +20,12 @@ function Register() {
             </Form.Group>
             <Form.Group controlId="formBasicClass">
               <Form.Label>Class:</Form.Label>
-              <Form.Control type="text" placeholder="Enter class" />
+              <Form.Select value={selectedClass} onChange={handleClassChange}>
+                <option value="">Select class</option>
+                {[...Array(10).keys()].map((i) => (
+                  <option key={i + 1} value={`class ${i + 1}`}>{`class ${i + 1}`}</option>
+                ))}
+              </Form.Select>
             </Form.Group>
             <Form.Group controlId="formBasicSchool">
               <Form.Label>School/Anganbadi Name:</Form.Label>
