@@ -7,6 +7,7 @@ from config import read_yaml
 from routes.auth_routes import router as auth_router
 from routes.course_routes import router as course_router
 from config.config import JWT_ALGORITHM, JWT_SECRET
+from fastapi.middleware.cors import CORSMiddleware
 from logger.logging import get_logger
 logger = get_logger(__name__)
 excluded_paths = read_yaml.EXCLUDED_APIS
@@ -85,3 +86,15 @@ async def AuthMiddleware(request: Request, call_next):
 
 app.include_router(auth_router, prefix="/api/v1")
 app.include_router(course_router, prefix="/api/v1")
+
+app = CORSMiddleware(
+    app=app,
+   
+    allow_origins = ['*'],
+    allow_credentials=True,
+    allow_methods=["GET", "PUT", "POST", "DELETE", "OPTIONS", "PATCH"],
+    allow_headers=["Content-Type", 
+                    "Authorization", 
+                    "withcredentials"
+                ] 
+    )
