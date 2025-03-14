@@ -5,6 +5,7 @@ from fastapi.responses import JSONResponse
 import jwt
 from config import read_yaml
 from routes.auth_routes import router as auth_router
+from routes.course_routes import router as course_router
 from config.config import JWT_ALGORITHM, JWT_SECRET
 from logger.logging import get_logger
 logger = get_logger(__name__)
@@ -83,3 +84,4 @@ async def AuthMiddleware(request: Request, call_next):
         
 
 app.include_router(auth_router, prefix="/api/v1")
+app.include_router(course_router, prefix="/api/v1")
