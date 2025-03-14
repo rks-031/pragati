@@ -1,24 +1,25 @@
 
 
 from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, constr, conint
 
 
 class RegisterModel(BaseModel):
     name: str
     student_class: str = Field(..., alias="class")  
     school: str = Field(..., alias="school_anganbadi_name")  
-    parent_phone: str
-    pin: str  
+    parent_phone: int  
+    pin: str
 
 class LoginModel(BaseModel):
     name: str
-    phone: str = Field(..., alias="Phone_Number")
+    phone: int
     pin: str
 
 class ForgotPasswordModel(BaseModel):
-    phone: str
+    phone: int
 
 class ResetPasswordModel(BaseModel):
-    phone: str
+    phone: int
     otp: str
-    new_pin: str
+    new_pin: str 

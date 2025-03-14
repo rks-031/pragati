@@ -42,6 +42,7 @@ class State:
         self.x_request_id=None
         self.user_id = None
         self.auth_call = None
+        self.user_class = None
 
 @app.middleware("http")
 async def AuthMiddleware(request: Request, call_next):
@@ -69,7 +70,9 @@ async def AuthMiddleware(request: Request, call_next):
 
         try:
             payload = jwt.decode(token, JWT_SECRET, algorithms=[JWT_ALGORITHM])
+            logger.info(f"Payload: {payload}")
             request.state.user_id = payload.get("user_id")
+            request.state.user_class = payload.get("student_class")
             logger.info(f"Authenticated user: {request.state.user_id}")
         except jwt.ExpiredSignatureError:
             return JSONResponse(status_code=401, content={"detail": "Token expired"})

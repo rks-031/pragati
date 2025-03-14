@@ -1,6 +1,7 @@
 
 import random
 from typing import Dict, Optional
+from venv import logger
 from fastapi import APIRouter, HTTPException, Query, Response, UploadFile, Request
 import datetime
 from db.models import ForgotPasswordModel, LoginModel, RegisterModel, ResetPasswordModel
@@ -34,7 +35,7 @@ async def login(user: LoginModel, response: Response):
     if not existing or not verify_pin(user.pin, existing["pin"]):
         raise HTTPException(status_code=400, detail="Invalid credentials")
     
-    token = create_jwt_token(str(existing["_id"]))
+    token = create_jwt_token(str(existing["_id"]), existing["student_class"])
     # Set JWT in an HTTP‑only cookie
     response.set_cookie(
         key="access_token", 
@@ -88,3 +89,12 @@ async def reset_password(data: ResetPasswordModel):
     # Remove the OTP document after a successful password reset
     delete_otps(str(otp_doc["_id"]))
     return {"msg": "PIN updated successfully"}
+
+@router.post("/logout")
+async def logout(response: Response):
+    try:
+        response.delete_cookie("access_token")
+        return {"msg": "Logged out successfully"}
+    except Exception as e:
+        logger.error(f"Failed to log out: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
