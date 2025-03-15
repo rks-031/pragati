@@ -12,7 +12,7 @@ class RegisterModel(BaseModel):
     pin: str
 
 class LoginModel(BaseModel):
-    name: str
+    # name: str
     phone: int
     pin: str
 
