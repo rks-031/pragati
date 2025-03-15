@@ -22,26 +22,28 @@ def fetch_course_content(user_class: str) -> dict:
     
     for blob in blobs:
         parts = blob.name.split("/")
-        if len(parts) < 7:
+        if len(parts) < 8:
             continue
         
-        subject = parts[4]
-        topic = parts[5]
-        filename = parts[6]
+        subject = parts[3]              
+        topic = parts[4]                
+        module = parts[6]               
+        filename = parts[7]             
         
         if subject not in course_content:
             course_content[subject] = {}
         if topic not in course_content[subject]:
-            course_content[subject][topic] = {"videos": [], "notes": []}
+            course_content[subject][topic] = {}
+        if module not in course_content[subject][topic]:
+            course_content[subject][topic][module] = {"videos": [], "notes": []}
         
-        # Use the public URL directly.
         file_url = blob.public_url
         
-        # Classify file by extension.
+        # Classify the file based on its extension.
         if filename.lower().endswith(".pdf"):
-            course_content[subject][topic]["notes"].append(file_url)
+            course_content[subject][topic][module]["notes"].append(file_url)
         elif filename.lower().endswith((".mp4", ".mov", ".avi")):
-            course_content[subject][topic]["videos"].append(file_url)
+            course_content[subject][topic][module]["videos"].append(file_url)
         else:
             logger.info(f"Unrecognized file type for blob: {blob.name}")
     
