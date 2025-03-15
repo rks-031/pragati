@@ -2,7 +2,7 @@ from typing import List
 from venv import logger
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
-import jwt
+import jwt # type: ignore
 from config import read_yaml
 from routes.auth_routes import router as auth_router
 from routes.course_routes import router as course_router
@@ -87,14 +87,10 @@ async def AuthMiddleware(request: Request, call_next):
 app.include_router(auth_router, prefix="/api/v1")
 app.include_router(course_router, prefix="/api/v1")
 
-app = CORSMiddleware(
-    app=app,
-   
-    allow_origins = ['*'],
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:5173"],  # Remove the wildcard "*"
     allow_credentials=True,
     allow_methods=["GET", "PUT", "POST", "DELETE", "OPTIONS", "PATCH"],
-    allow_headers=["Content-Type", 
-                    "Authorization", 
-                    "withcredentials"
-                ] 
-    )
+    allow_headers=["Content-Type", "Authorization", "Cookie", "Accept", "X-Requested-With"]
+)

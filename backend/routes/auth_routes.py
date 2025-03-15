@@ -13,8 +13,9 @@ router = APIRouter(tags=["Auth"])
 
 @router.post("/register")
 async def register(user: RegisterModel):
+    logger.info(f"Received registration data: {user}")
     # Check if the user already exists by parent's phone number
-    existing =  get_user_by_phone(user.parent_phone)
+    existing = get_user_by_phone(user.parent_phone)
     if existing:
         raise HTTPException(status_code=400, detail="User already exists")
     
