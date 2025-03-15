@@ -23,7 +23,7 @@ function Register() {
               <Form.Select value={selectedClass} onChange={handleClassChange}>
                 <option value="">Select class</option>
                 {[...Array(10).keys()].map((i) => (
-                  <option key={i + 1} value={`class ${i + 1}`}>{`class ${i + 1}`}</option>
+                  <option key={i + 1} value={i + 1}>{i + 1}</option>
                 ))}
               </Form.Select>
             </Form.Group>
