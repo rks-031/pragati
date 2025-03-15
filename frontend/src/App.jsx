@@ -10,6 +10,7 @@ import Assessment from './components/Assessment';
 import ExamPrep from './components/ExamPrep';
 import Modules from './components/Modules';
 import Quiz from './components/Quiz';
+import axios from 'axios';
 
 function App() {
   return (
