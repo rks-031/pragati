@@ -5,8 +5,6 @@ from config.config import GCS_BUCKET_NAME, GCS_CREDENTIALS
 import datetime
 from logger.logging import get_logger
 
-
-
 storage_client = storage.Client.from_service_account_json(GCS_CREDENTIALS)
 bucket = storage_client.bucket(GCS_BUCKET_NAME)
 logger = get_logger(__name__)

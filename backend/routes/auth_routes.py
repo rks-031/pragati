@@ -9,11 +9,7 @@ from services.sms_service import send_sms
 from services.db_services import delete_otps, get_otp, get_user_by_phone, insert_otp, insert_user, update_user
 from utils.utils import create_jwt_token, hash_pin, verify_pin
 
-
-
 router = APIRouter(tags=["Auth"])
-
-
 
 @router.post("/register")
 async def register(user: RegisterModel):

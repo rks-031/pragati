@@ -1,14 +1,9 @@
 import datetime
-from passlib.context import CryptContext
-import jwt
+from passlib.context import CryptContext # type: ignore
+import jwt # type: ignore
 from config.config import JWT_ALGORITHM, JWT_EXP_DELTA_SECONDS, JWT_SECRET
 
-
-
-
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
-
-
 
 def hash_pin(pin: str) -> str:
     return pwd_context.hash(pin)
