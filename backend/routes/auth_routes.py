@@ -2,7 +2,7 @@
 import random
 from typing import Dict, Optional
 from venv import logger
-from fastapi import APIRouter, HTTPException, Query, Response, UploadFile, Request
+from fastapi import APIRouter, HTTPException, Query, Response, UploadFile, Request # type: ignore
 import datetime
 from db.models import ForgotPasswordModel, LoginModel, RegisterModel, ResetPasswordModel
 from services.sms_service import send_sms
@@ -27,20 +27,23 @@ async def register(user: RegisterModel):
 
 @router.post("/login")
 async def login(user: LoginModel, response: Response):
-    # Look up the user by parent's phone number
     existing = get_user_by_phone(user.phone)
     if not existing or not verify_pin(user.pin, existing["pin"]):
         raise HTTPException(status_code=400, detail="Invalid credentials")
-    
-    token = create_jwt_token(str(existing["_id"]), existing["student_class"])
-    # Set JWT in an HTTP‑only cookie
+
+    token = create_jwt_token(
+        str(existing["_id"]), 
+        existing["student_class"], 
+        existing["name"]  # Included name in JWT
+    )
+
     response.set_cookie(
         key="access_token", 
         value=token, 
         httponly=True, 
-        secure=False  # Set secure=True in production when using HTTPS
+        secure=False  
     )
-    return {"msg": "Login successful"}
+    return {"msg": "Login successful", "name": existing["name"]}
 
 @router.post("/forgot-password")
 async def forgot_password(data: ForgotPasswordModel):

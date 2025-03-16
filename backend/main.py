@@ -7,7 +7,7 @@ from config import read_yaml
 from routes.auth_routes import router as auth_router
 from routes.course_routes import router as course_router
 from config.config import JWT_ALGORITHM, JWT_SECRET
-from fastapi.middleware.cors import CORSMiddleware
+from fastapi.middleware.cors import CORSMiddleware # type: ignore
 from logger.logging import get_logger
 logger = get_logger(__name__)
 excluded_paths = read_yaml.EXCLUDED_APIS

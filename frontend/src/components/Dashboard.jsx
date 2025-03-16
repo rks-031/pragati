@@ -1,9 +1,21 @@
-import React from 'react';
-import { Container, Button } from 'react-bootstrap';
+import React, { useEffect, useState } from 'react';
+import { Container } from 'react-bootstrap';
 
 function Dashboard() {
+  const [userName, setUserName] = useState(null);
+
+  useEffect(() => {
+    const storedName = localStorage.getItem('userName');
+    if (storedName) {
+      setUserName(storedName);
+    } else {
+      setUserName(null); // Ensures name disappears on logout
+    }
+  }, []);
+
   return (
     <Container className="text-center mt-5">
+      {userName && <h3>Hi {userName.toUpperCase()}!</h3>}
       <h2>Welcome to Pragati!</h2>
       <p className="lead">Empowering Rural India Through Accessible Learning.</p>
       <div className="my-5">

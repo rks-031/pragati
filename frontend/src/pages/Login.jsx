@@ -17,29 +17,23 @@ function Login() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setErrorMessage(''); 
-
+    setErrorMessage('');
+  
     try {
       const response = await axios.post('/api/v1/login', {
-        phone: Number(formData.phone), // Ensure phone number is an integer
+        phone: Number(formData.phone),
         pin: formData.pin
       });
-
+  
       alert(response.data.msg);
-      navigate('/dashboard'); // Redirect to dashboard
+      localStorage.setItem('userName', response.data.name); // Store name in localStorage
+      navigate('/');
     } catch (error) {
       console.error('Login error:', error);
-
-      if (error.response) {
-        const errorDetail = error.response.data.detail;
-        setErrorMessage(typeof errorDetail === 'object' ? 'Invalid credentials.' : errorDetail || 'Login failed');
-      } else if (error.request) {
-        setErrorMessage('No response from server. Check your connection.');
-      } else {
-        setErrorMessage('An error occurred during login. Please try again.');
-      }
+      setErrorMessage(error.response?.data?.detail || 'Login failed');
     }
   };
+  
 
   return (
     <Container className="mt-5">

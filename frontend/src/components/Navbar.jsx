@@ -1,8 +1,30 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
+import React, { useEffect, useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import { Navbar, Nav, NavDropdown, Container, Button } from 'react-bootstrap';
+import axios from '../axiosConfig';
 
 function NavigationBar() {
+  const [userName, setUserName] = useState(null);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const storedName = localStorage.getItem('userName');
+    if (storedName) {
+      setUserName(storedName);
+    }
+  }, []);
+
+  const handleLogout = async () => {
+    try {
+      await axios.post('/api/v1/logout');  // Ensure this API call clears the session
+      localStorage.removeItem('userName');
+      setUserName(null);
+      navigate('/');
+    } catch (error) {
+      console.error('Logout failed:', error);
+    }
+  };
+
   return (
     <Navbar bg="light" expand="lg">
       <Container>
@@ -20,12 +42,20 @@ function NavigationBar() {
             <Nav.Link as={Link} to="/community">Community</Nav.Link>
           </Nav>
           <Nav>
-            <Nav.Item>
-              <Button variant="primary" as={Link} to="/login" className='mx-2'>Login</Button>
-            </Nav.Item>
-            <Nav.Item>
-              <Button variant="success" as={Link} to="/register">Register</Button>
-            </Nav.Item>
+            {userName ? (
+              <Nav.Item>
+                <Button variant="danger" onClick={handleLogout} className="mx-2">Logout</Button>
+              </Nav.Item>
+            ) : (
+              <>
+                <Nav.Item>
+                  <Button variant="primary" as={Link} to="/login" className="mx-2">Login</Button>
+                </Nav.Item>
+                <Nav.Item>
+                  <Button variant="success" as={Link} to="/register">Register</Button>
+                </Nav.Item>
+              </>
+            )}
           </Nav>
         </Navbar.Collapse>
       </Container>

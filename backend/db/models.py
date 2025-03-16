@@ -1,8 +1,6 @@
 
-
-from pydantic import BaseModel, Field
-from pydantic import BaseModel, Field, constr, conint
-
+from pydantic import BaseModel, Field # type: ignore
+from pydantic import BaseModel, Field, constr, conint # type: ignore
 
 class RegisterModel(BaseModel):
     name: str
