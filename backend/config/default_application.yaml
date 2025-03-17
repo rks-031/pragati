@@ -6,4 +6,5 @@ app:
     method: POST
   - path: /api/v1/logout
     method: POST
-  
+  - path: /api/v1/courses
+    method: GET

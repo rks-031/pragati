@@ -4,16 +4,9 @@ from typing import Dict, Optional
 from venv import logger
 from fastapi import APIRouter, HTTPException, Query, Response, UploadFile, Request
 import datetime
-
-
 from services.gcs_service import fetch_course_content
 
-
-
-
 router = APIRouter(tags=["Course"])
-
-from fastapi import HTTPException
 
 @router.get("/courses")
 def get_courses(request: Request):
