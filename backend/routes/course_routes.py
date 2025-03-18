@@ -1,4 +1,3 @@
-
 import random
 from typing import Dict, Optional
 from venv import logger
@@ -10,7 +9,9 @@ router = APIRouter(tags=["Course"])
 
 @router.get("/courses")
 def get_courses(request: Request):
+    print("in get_courses")
     user_class = request.state.user_class
+    print("user_class", user_class)
     try:
         course_link = fetch_course_content(user_class)
     except HTTPException as he:
@@ -18,5 +19,5 @@ def get_courses(request: Request):
     except Exception as e:
         logger.error(f"Unexpected error fetching course link: {e}")
         raise HTTPException(status_code=500, detail=str(e))
-    
+
     return course_link

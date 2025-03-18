@@ -11,7 +11,7 @@ const Modules = () => {
       try {
         const response = await axios.get("/api/v1/courses");
         console.log("Response data:", response.data);
-        setCourseContent(response.data.content || {}); // Ensure it's an object
+        setCourseContent(response.data.content || {}); 
       } catch (err) {
         console.error("Error fetching course content:", err);
         setError("Failed to load course content.");
@@ -32,15 +32,15 @@ const Modules = () => {
   return (
     <div>
       <h2>Your Course Modules</h2>
-      {Object.entries(courseContent).map(([subject, topics]) => (
+      {Object.entries(courseContent).map(([subject, subjectContent]) => (
         <div key={subject}>
           <h3>{subject}</h3>
-          {Object.entries(topics).map(([topic, modules]) => (
+          {Object.entries(subjectContent).map(([topic, modules]) => (
             <div key={topic} style={{ marginLeft: "20px" }}>
               <h4>{topic}</h4>
               {Object.entries(modules).map(([module, content]) => (
                 <div key={module} style={{ marginLeft: "40px" }}>
-                  <h5>{module}</h5>
+                  <h5>{module.replace(/mod-\d+:/, "Module ")} </h5>
                   <p>Videos:</p>
                   <ul>
                     {content.videos?.length > 0 ? (

@@ -1,3 +1,4 @@
+// Login.jsx
 import React, { useState } from 'react';
 import { Container, Form, Button, Row, Col, Alert } from 'react-bootstrap';
 import { Link, useNavigate } from 'react-router-dom';
@@ -24,17 +25,18 @@ function Login() {
         phone: Number(formData.phone),
         pin: formData.pin
       });
-  
+      console.log("Login response:", response.data);
+      console.log("Access Token:", response.data.access_token); // Log the token
       alert(response.data.msg);
       localStorage.setItem('userName', response.data.name); // Store name in localStorage
       navigate('/');
-    } catch (error) {
+    } 
+    catch (error) {
       console.error('Login error:', error);
       setErrorMessage(error.response?.data?.detail || 'Login failed');
     }
   };
   
-
   return (
     <Container className="mt-5">
       <Row className="justify-content-center">
