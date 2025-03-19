@@ -1,17 +1,9 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { Container } from 'react-bootstrap';
+import { useAuth } from '../context/AuthContext';
 
-function Dashboard() {
-  const [userName, setUserName] = useState(null);
-
-  useEffect(() => {
-    const storedName = localStorage.getItem('userName');
-    if (storedName) {
-      setUserName(storedName);
-    } else {
-      setUserName(null); // Ensures name disappears on logout
-    }
-  }, []);
+export default function Dashboard() {
+  const { userName } = useAuth();
 
   return (
     <Container className="text-center mt-5">
@@ -27,5 +19,3 @@ function Dashboard() {
     </Container>
   );
 }
-
-export default Dashboard;

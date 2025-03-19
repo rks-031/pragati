@@ -1,10 +1,11 @@
-// Login.jsx
 import React, { useState } from 'react';
 import { Container, Form, Button, Row, Col, Alert } from 'react-bootstrap';
 import { Link, useNavigate } from 'react-router-dom';
-import axios from '../axiosConfig'; 
+import axios from '../axiosConfig';
+import { useAuth } from '../context/AuthContext';
 
 function Login() {
+  const { login } = useAuth();
   const [formData, setFormData] = useState({
     phone: '',
     pin: ''
@@ -26,9 +27,9 @@ function Login() {
         pin: formData.pin
       });
       console.log("Login response:", response.data);
-      console.log("Access Token:", response.data.access_token); // Log the token
+      console.log("Access Token:", response.data.access_token);
       alert(response.data.msg);
-      localStorage.setItem('userName', response.data.name); // Store name in localStorage
+      login(response.data.name); // Using context login function instead of localStorage
       navigate('/');
     } 
     catch (error) {
@@ -55,7 +56,7 @@ function Login() {
                 value={formData.phone}
                 onChange={handleChange}
                 required
-                pattern="\d{10}" // Ensure 10-digit numeric input
+                pattern="\d{10}"
                 title="Enter a valid 10-digit phone number"
               />
             </Form.Group>
@@ -69,7 +70,7 @@ function Login() {
                 value={formData.pin}
                 onChange={handleChange}
                 required
-                pattern="\d{4}" // Ensure 4-digit PIN
+                pattern="\d{4}"
                 title="Enter a valid 4-digit PIN"
               />
             </Form.Group>
