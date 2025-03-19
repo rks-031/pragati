@@ -1,24 +1,17 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Navbar, Nav, NavDropdown, Container, Button } from 'react-bootstrap';
 import axios from '../axiosConfig';
+import { useAuth } from '../context/AuthContext';
 
 function NavigationBar() {
-  const [userName, setUserName] = useState(null);
+  const { userName, logout } = useAuth();
   const navigate = useNavigate();
-
-  useEffect(() => {
-    const storedName = localStorage.getItem('userName');
-    if (storedName) {
-      setUserName(storedName);
-    }
-  }, []);
 
   const handleLogout = async () => {
     try {
-      await axios.post('/api/v1/logout');  // Ensure this API call clears the session
-      localStorage.removeItem('userName');
-      setUserName(null);
+      await axios.post('/api/v1/logout');
+      logout(); // Using context logout function
       navigate('/');
     } catch (error) {
       console.error('Logout failed:', error);
