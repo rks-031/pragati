@@ -27,7 +27,7 @@ function NavigationBar() {
           <Nav className="me-auto">
             <NavDropdown title="My Learning" id="basic-nav-dropdown">
               <NavDropdown.Item as={Link} to="/assessment">Assessments</NavDropdown.Item>
-              <NavDropdown.Item as={Link} to="/modules-courses">Modules & Courses</NavDropdown.Item>
+              <NavDropdown.Item as={Link} to="/modules-courses">Your Courses</NavDropdown.Item>
               <NavDropdown.Item as={Link} to="/exam-preparation">Exam Preparation</NavDropdown.Item>
             </NavDropdown>
             <Nav.Link as={Link} to="/teach">Teach</Nav.Link>
