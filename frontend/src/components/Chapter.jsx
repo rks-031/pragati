@@ -14,8 +14,23 @@ const Chapter = () => {
     setShowModal(true);
   };
 
-  const handleDownloadNotes = (notesUrl) => {
-    window.open(notesUrl, '_blank');
+  const handleDownloadNotes = async (notesUrl) => {
+    try {
+      const response = await fetch(notesUrl);
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      // Extract filename from URL or use default name
+      const filename = notesUrl.substring(notesUrl.lastIndexOf('/') + 1) || 'notes.pdf';
+      link.setAttribute('download', filename);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error('Error downloading notes:', error);
+    }
   };
 
   return (
@@ -43,11 +58,11 @@ const Chapter = () => {
 
       <Modal show={showModal} onHide={() => setShowModal(false)} size="lg">
         <Modal.Header closeButton>
-          <Modal.Title>Module Content</Modal.Title>
         </Modal.Header>
+        <Modal.Title className='text-center'>Module Content</Modal.Title>
         <Modal.Body>
           {selectedContent?.videos?.[0] && (
-            <div className="ratio ratio-16x9 mb-3">
+            <div className="ratio ratio-16x9 mb-1">
               <iframe
                 src={selectedContent.videos[0]}
                 title="Module Video"
