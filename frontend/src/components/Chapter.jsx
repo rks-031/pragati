@@ -32,7 +32,7 @@ const Chapter = () => {
                 <Card.Title>{module.replace(/mod-\d+:/, "Module ")}</Card.Title>
                 <Card.Text>
                   <small className="text-muted">
-                    {content.videos?.length || 0} video(s) available
+                    Click to View Contents
                   </small>
                 </Card.Text>
               </Card.Body>
