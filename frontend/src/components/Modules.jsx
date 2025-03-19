@@ -1,61 +1,76 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
-import "../styles/modules.css";
+import axios from "../axiosConfig";
 
 const Modules = () => {
-  const [courseContent, setCourseContent] = useState({});
+  const [courseContent, setCourseContent] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
-    const fetchContent = async () => {
+    const fetchCourseContent = async () => {
       try {
-        const token = localStorage.getItem("token");
-        const res = await axios.get("http://localhost:8000/courses", {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-
-        setCourseContent(res.data.course_content);
-      } catch (error) {
-        console.error("Error fetching course content:", error);
+        const response = await axios.get("/api/v1/courses");
+        console.log("Response data:", response.data);
+        setCourseContent(response.data.content || {}); 
+      } catch (err) {
+        console.error("Error fetching course content:", err);
+        setError("Failed to load course content.");
+      } finally {
+        setLoading(false);
       }
     };
 
-    fetchContent();
+    fetchCourseContent();
   }, []);
 
+  if (loading) return <p>Loading course content...</p>;
+  if (error) return <p style={{ color: "red" }}>{error}</p>;
+  if (!courseContent || Object.keys(courseContent).length === 0) {
+    return <p>No course content available.</p>;
+  }
+
   return (
-    <div className="modules-container">
-      <h1 className="modules-header">MODULES & COURSES</h1>
-
-      {Object.entries(courseContent).map(([subject, topics]) => (
-        <div key={subject} className="content-section">
-          <h2 className="content-title">{subject}</h2>
-
-          {Object.entries(topics).map(([topic, content]) => (
-            <div key={topic} className="topic-section">
-              <h3 className="topic-title">{topic}</h3>
-
-              <div className="videos-container">
-                {content.videos.map((video, index) => (
-                  <div key={index} className="video-item">
-                    <a href={video} target="_blank" rel="noopener noreferrer" className="video-link">
-                      <div className="video-thumbnail">
-                        <img src="https://placehold.co/280x160/navy/white?text=Video" alt={`Thumbnail for ${topic}`} className="video-img" />
-                        <div className="play-button">▶</div>
-                      </div>
-                    </a>
-                    <p className="video-label">Video {index + 1}</p>
-                  </div>
-                ))}
-              </div>
-
-              <div className="notes-container">
-                {content.notes.map((note, index) => (
-                  <a key={index} href={note} download className="pdf-link">
-                    <img src="https://placehold.co/24x24/black/white?text=PDF" alt="PDF icon" className="pdf-icon" />
-                    Download PDF {index + 1}
-                  </a>
-                ))}
-              </div>
+    <div>
+      <h2>Your Course Modules</h2>
+      {Object.entries(courseContent).map(([subject, subjectContent]) => (
+        <div key={subject}>
+          <h3>{subject}</h3>
+          {Object.entries(subjectContent).map(([topic, modules]) => (
+            <div key={topic} style={{ marginLeft: "20px" }}>
+              <h4>{topic}</h4>
+              {Object.entries(modules).map(([module, content]) => (
+                <div key={module} style={{ marginLeft: "40px" }}>
+                  <h5>{module.replace(/mod-\d+:/, "Module ")} </h5>
+                  <p>Videos:</p>
+                  <ul>
+                    {content.videos?.length > 0 ? (
+                      content.videos.map((video, index) => (
+                        <li key={index}>
+                          <a href={video} target="_blank" rel="noopener noreferrer">
+                            {video}
+                          </a>
+                        </li>
+                      ))
+                    ) : (
+                      <li>No videos available</li>
+                    )}
+                  </ul>
+                  <p>Notes:</p>
+                  <ul>
+                    {content.notes?.length > 0 ? (
+                      content.notes.map((note, index) => (
+                        <li key={index}>
+                          <a href={note} target="_blank" rel="noopener noreferrer">
+                            {note}
+                          </a>
+                        </li>
+                      ))
+                    ) : (
+                      <li>No notes available</li>
+                    )}
+                  </ul>
+                </div>
+              ))}
             </div>
           ))}
         </div>

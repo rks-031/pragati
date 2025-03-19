@@ -1,8 +1,7 @@
-
 import random
 from typing import Dict, Optional
 from venv import logger
-from fastapi import APIRouter, HTTPException, Query, Response, UploadFile, Request # type: ignore
+from fastapi import APIRouter, HTTPException, Query, Response, UploadFile, Request  # type: ignore
 import datetime
 from db.models import ForgotPasswordModel, LoginModel, RegisterModel, ResetPasswordModel
 from services.sms_service import send_sms
@@ -18,7 +17,7 @@ async def register(user: RegisterModel):
     existing = get_user_by_phone(user.parent_phone)
     if existing:
         raise HTTPException(status_code=400, detail="User already exists")
-    
+
     hashed_pin = hash_pin(user.pin)
     user_data = user.model_dump()
     user_data["pin"] = hashed_pin
@@ -27,23 +26,26 @@ async def register(user: RegisterModel):
 
 @router.post("/login")
 async def login(user: LoginModel, response: Response):
+    print("in login")
     existing = get_user_by_phone(user.phone)
     if not existing or not verify_pin(user.pin, existing["pin"]):
         raise HTTPException(status_code=400, detail="Invalid credentials")
 
     token = create_jwt_token(
-        str(existing["_id"]), 
-        existing["student_class"], 
-        existing["name"]  # Included name in JWT
+        str(existing["_id"]),
+        existing["student_class"],
+        existing["name"]  
     )
-
+    print("token", token)
     response.set_cookie(
-        key="access_token", 
-        value=token, 
-        httponly=True, 
-        secure=False  
-    )
-    return {"msg": "Login successful", "name": existing["name"]}
+    key="access_token",
+    value=token,
+    secure=True,
+    httponly=True,
+    samesite="None",
+)
+    print("response", response)
+    return {"msg": "Login successful", "name": existing["name"], "access_token": token}
 
 @router.post("/forgot-password")
 async def forgot_password(data: ForgotPasswordModel):
@@ -51,7 +53,7 @@ async def forgot_password(data: ForgotPasswordModel):
     existing = get_user_by_phone(data.phone)
     if not existing:
         raise HTTPException(status_code=400, detail="User not found")
-    
+
     # Generate a 6-digit OTP and store it with a creation timestamp
     otp = str(random.randint(100000, 999999))
     otp_data = {
@@ -60,15 +62,15 @@ async def forgot_password(data: ForgotPasswordModel):
         "created_at": datetime.datetime.utcnow()
     }
     insert_otp(otp_data)
-    
+
     # Send the OTP via SMS using the Twilio service
     try:
         message_sid = send_sms(data.phone, otp)
     except Exception as e:
         # Optionally, remove the stored OTP or handle the error appropriately
-        #todo handle error
+        # todo handle error
         raise HTTPException(status_code=500, detail=str(e))
-    
+
     return {"msg": "OTP sent to your registered phone number", "message_sid": message_sid}
 
 
@@ -79,22 +81,24 @@ async def reset_password(data: ResetPasswordModel):
     otp_doc = get_otp(data)
     if not otp_doc:
         raise HTTPException(status_code=400, detail="Invalid OTP")
-    
+
     if datetime.datetime.now(datetime.timezone.utc) - otp_doc["created_at"] > datetime.timedelta(minutes=5):
         raise HTTPException(status_code=400, detail="OTP expired")
-    
+
     hashed_pin = hash_pin(data.new_pin)
     update_user({"parent_phone": data.phone}, {"pin": hashed_pin})
-   
+
     # Remove the OTP document after a successful password reset
     delete_otps(str(otp_doc["_id"]))
     return {"msg": "PIN updated successfully"}
 
 @router.post("/logout")
 async def logout(response: Response):
+    print("in logout")
     try:
         response.delete_cookie("access_token")
         return {"msg": "Logged out successfully"}
     except Exception as e:
         logger.error(f"Failed to log out: {e}")
         raise HTTPException(status_code=500, detail=str(e))
+    

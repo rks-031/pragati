@@ -1,4 +1,4 @@
-import uvicorn
+import uvicorn  # type: ignore
 from config.config import ENV
 
 
