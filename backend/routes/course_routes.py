@@ -1,7 +1,7 @@
 import random
 from typing import Dict, Optional
 from venv import logger
-from fastapi import APIRouter, HTTPException, Query, Response, UploadFile, Request
+from fastapi import APIRouter, HTTPException, Query, Response, UploadFile, Request 
 import datetime
 from services.gcs_service import fetch_course_content
 
