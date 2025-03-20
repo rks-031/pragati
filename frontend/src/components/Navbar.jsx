@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { Navbar, Nav, NavDropdown, Container, Button } from 'react-bootstrap';
 import axios from '../axiosConfig';
 import { useAuth } from '../context/AuthContext';
+import logo from '../assets/logoGradient.png';
 
 function NavigationBar() {
   const { userName, logout } = useAuth();
@@ -21,7 +22,14 @@ function NavigationBar() {
   return (
     <Navbar bg="light" expand="lg">
       <Container>
-        <Navbar.Brand as={Link} to="/">Pragati</Navbar.Brand>
+      <Navbar.Brand as={Link} to="/">
+          <img
+            src={logo}
+            height="40"
+            className="d-inline-block align-top font-weight-bold"
+            alt="Pragati Logo"
+          />
+        </Navbar.Brand>
         <Navbar.Toggle aria-controls="basic-navbar-nav" />
         <Navbar.Collapse id="basic-navbar-nav">
           <Nav className="me-auto">
