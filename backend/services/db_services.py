@@ -11,6 +11,8 @@ otps_collection = db["otps"]
 
 def get_user_by_phone(phone: str):
     return users_collection.find_one({"parent_phone": phone})
+def get_user_by_apaar_id(apaar_id: str):
+    return users_collection.find_one({"apaar_id": apaar_id})
 
 def insert_user(user_data: Dict):
     return users_collection.insert_one(user_data)

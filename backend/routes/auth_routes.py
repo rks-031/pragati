@@ -5,47 +5,68 @@ from fastapi import APIRouter, HTTPException, Query, Response, UploadFile, Reque
 import datetime
 from db.models import ForgotPasswordModel, LoginModel, RegisterModel, ResetPasswordModel
 from services.sms_service import send_sms
-from services.db_services import delete_otps, get_otp, get_user_by_phone, insert_otp, insert_user, update_user
+from services.db_services import delete_otps, get_otp, get_user_by_apaar_id, get_user_by_phone, insert_otp, insert_user, update_user
 from utils.utils import create_jwt_token, hash_pin, verify_pin
 
 router = APIRouter(tags=["Auth"])
 
+def get_role_based_data(user: RegisterModel):
+    if user.role.value == "teacher":
+        if not all([user.qualification, user.apaar_id, user.phone]):
+            raise HTTPException(status_code=400, detail="Missing teacher details")
+    elif user.role.value == "student":
+        if not all([user.parent_phone, user.student_class]):
+            raise HTTPException(status_code=400, detail="Missing student details")
+    else:
+        raise HTTPException(status_code=400, detail="Invalid role")
+    return user
+
 @router.post("/register")
 async def register(user: RegisterModel):
     logger.info(f"Received registration data: {user}")
-    # Check if the user already exists by parent's phone number
-    existing = get_user_by_phone(user.parent_phone)
+    
+    user = get_role_based_data(user)  # Validate role-specific fields
+    
+    existing = get_user_by_phone(user.parent_phone if user.role.value == "student" else user.phone)
     if existing:
         raise HTTPException(status_code=400, detail="User already exists")
-
-    hashed_pin = hash_pin(user.pin)
+    
     user_data = user.model_dump()
-    user_data["pin"] = hashed_pin
+    user_data["pin"] = hash_pin(user.pin)
     insert_user(user_data)
     return {"msg": "User registered successfully"}
 
 @router.post("/login")
 async def login(user: LoginModel, response: Response):
-    print("in login")
-    existing = get_user_by_phone(user.phone)
+    logger.info("Processing login request")
+    
+    if user.role.value == "student":
+        existing = get_user_by_phone(user.phone)
+    elif user.role.value == "teacher":
+        existing = get_user_by_apaar_id(user.apaar_id)
+    else:
+        raise HTTPException(status_code=400, detail="Invalid role")
+    
     if not existing or not verify_pin(user.pin, existing["pin"]):
         raise HTTPException(status_code=400, detail="Invalid credentials")
-
+    
     token = create_jwt_token(
         str(existing["_id"]),
-        existing["student_class"],
-        existing["name"]  
+        existing.get("student_class", "N/A"),
+        existing["name"],
+        existing["role"]
+
     )
-    print("token", token)
+    
     response.set_cookie(
-    key="access_token",
-    value=token,
-    secure=True,
-    httponly=True,
-    samesite="None",
-)
-    print("response", response)
-    return {"msg": "Login successful", "name": existing["name"], "access_token": token}
+        key="access_token",
+        value=token,
+        secure=True,
+        httponly=True,
+        samesite="None"
+    )
+    
+    return {"msg": "Login successful", "name": existing["name"], "access_token": token, "role": existing["role"]}
 
 @router.post("/forgot-password")
 async def forgot_password(data: ForgotPasswordModel):
