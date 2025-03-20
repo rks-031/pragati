@@ -6,6 +6,7 @@ import jwt  # type: ignore
 from config import read_yaml
 from routes.auth_routes import router as auth_router
 from routes.course_routes import router as course_router
+from routes.assessment_routes import router as assessment_router
 from config.config import JWT_ALGORITHM, JWT_SECRET
 from fastapi.middleware.cors import CORSMiddleware  # type: ignore
 from logger.logging import get_logger
@@ -84,6 +85,7 @@ async def AuthMiddleware(request: Request, call_next):
 
 app.include_router(auth_router, prefix="/api/v1")
 app.include_router(course_router, prefix="/api/v1")
+app.include_router(assessment_router, prefix="/api/v1")
 
 app.add_middleware(
     CORSMiddleware,

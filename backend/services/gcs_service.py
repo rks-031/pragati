@@ -1,4 +1,5 @@
 
+from typing import Optional
 from google.cloud import storage
 from fastapi import HTTPException
 from config.config import GCS_BUCKET_NAME, GCS_CREDENTIALS
@@ -48,3 +49,24 @@ def fetch_course_content(user_class: str) -> dict:
             logger.info(f"Unrecognized file type for blob: {blob.name}")
     
     return {"content": course_content}
+
+def upload_file_to_gcs(file, content_type: str, 
+                      file_path: Optional[str]=None,
+                      bucket_name: Optional[str] = None) -> dict:
+    
+    try:
+        bucket = storage_client.bucket(bucket_name)
+        # Upload the file to GCS
+        logger.debug(f"Attempting to upload file to GCS: {file_path}")
+        blob = bucket.blob(file_path)
+        blob.upload_from_file(file.file, content_type=content_type)
+
+        # Return the file URL
+        gs_url = f"gs://{bucket_name}/{file.filename}"
+        https_url = f"https://storage.googleapis.com/{bucket_name}/{file.filename}"
+
+        return {"gs_url": gs_url, "https_url": https_url}
+    except Exception as e:
+        logger.error(f"Failed to upload file to GCS: {file_path}, error: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Failed to upload file to GCS: {str(e)}")
+
