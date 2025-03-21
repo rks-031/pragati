@@ -55,7 +55,6 @@ async def login(user: LoginModel, response: Response):
         existing.get("student_class", "N/A"),
         existing["name"],
         existing["role"]
-
     )
     
     response.set_cookie(
