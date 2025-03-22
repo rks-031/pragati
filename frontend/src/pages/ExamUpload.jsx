@@ -92,7 +92,7 @@ const ExamUpload = () => {
                                 >
                                     <option value="">Select Class</option>
                                     {classOptions.map((cls) => (
-                                        <option key={cls} value={cls}>Class {cls}</option>
+                                        <option key={cls} value={cls}>{cls}</option>
                                     ))}
                                 </Form.Select>
                             </Form.Group>
