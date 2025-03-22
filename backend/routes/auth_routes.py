@@ -38,16 +38,27 @@ async def register(user: RegisterModel):
 
 @router.post("/login")
 async def login(user: LoginModel, response: Response):
-    logger.info("Processing login request")
-    
-    if user.role.value == "student":
+    logger.info(f"Processing login request for role: {user.role}")
+
+    if user.role == "student":
+        logger.info(f"Looking up student with phone: {user.phone}")
         existing = get_user_by_phone(user.phone)
-    elif user.role.value == "teacher":
+    elif user.role == "teacher":
+        logger.info(f"Looking up teacher with APAAR ID: {user.apaar_id}")
         existing = get_user_by_apaar_id(user.apaar_id)
     else:
         raise HTTPException(status_code=400, detail="Invalid role")
     
-    if not existing or not verify_pin(user.pin, existing["pin"]):
+    if not existing:
+        logger.error(f"User not found for role: {user.role}")
+        raise HTTPException(status_code=400, detail="Invalid credentials")
+    
+    # Debug PIN verification
+    logger.info(f"Stored PIN (hashed): {existing['pin']}")
+    logger.info(f"Entered PIN (raw): {user.pin}")
+
+    if not verify_pin(user.pin, existing["pin"]):
+        logger.error("PIN verification failed")
         raise HTTPException(status_code=400, detail="Invalid credentials")
     
     token = create_jwt_token(
@@ -66,6 +77,7 @@ async def login(user: LoginModel, response: Response):
     )
     
     return {"msg": "Login successful", "name": existing["name"], "access_token": token, "role": existing["role"]}
+
 
 @router.post("/forgot-password")
 async def forgot_password(data: ForgotPasswordModel):
