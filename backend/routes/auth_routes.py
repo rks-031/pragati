@@ -52,7 +52,7 @@ async def login(user: LoginModel, response: Response):
     if not existing:
         logger.error(f"User not found for role: {user.role}")
         raise HTTPException(status_code=400, detail="Invalid credentials")
-    
+
     # Debug PIN verification
     logger.info(f"Stored PIN (hashed): {existing['pin']}")
     logger.info(f"Entered PIN (raw): {user.pin}")
@@ -61,11 +61,14 @@ async def login(user: LoginModel, response: Response):
         logger.error("PIN verification failed")
         raise HTTPException(status_code=400, detail="Invalid credentials")
     
+    qualification = existing.get("qualification", "N/A")  # Ensure qualification is retrieved
+
     token = create_jwt_token(
         str(existing["_id"]),
         existing.get("student_class", "N/A"),
         existing["name"],
-        existing["role"]
+        existing["role"],
+        qualification  
     )
     
     response.set_cookie(
@@ -76,8 +79,13 @@ async def login(user: LoginModel, response: Response):
         samesite="None"
     )
     
-    return {"msg": "Login successful", "name": existing["name"], "access_token": token, "role": existing["role"]}
-
+    return {
+        "msg": "Login successful",
+        "name": existing["name"],
+        "access_token": token,
+        "role": existing["role"],
+        "qualification": qualification  
+    }
 
 @router.post("/forgot-password")
 async def forgot_password(data: ForgotPasswordModel):
