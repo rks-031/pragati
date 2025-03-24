@@ -44,11 +44,9 @@ def is_excluded_path(path: str, method: str, excluded_paths: List[dict]) -> bool
 async def AuthMiddleware(request: Request, call_next):
     path = request.url.path
     method = request.method
-    if (
-        request.url.path.startswith("/openapi.json")
+    if (request.url.path.startswith("/openapi.json") 
         or request.url.path.startswith("/favicon.ico")
-        or request.url.path.startswith("/docs")
-    ):
+        or request.url.path.startswith("/docs")):
         logger.debug(f"Skipping session check for {request.url.path}")
         response = await call_next(request)
         return response
@@ -59,7 +57,7 @@ async def AuthMiddleware(request: Request, call_next):
         response = await call_next(request)
         return response
 
-    # Check for the JWT in an HTTP‑only cookie
+    # Check for the JWT in an HTTP-only cookie
     token = request.cookies.get("access_token")
     if not token:
         logger.error("Not authenticated")
@@ -69,11 +67,14 @@ async def AuthMiddleware(request: Request, call_next):
         payload = jwt.decode(token, JWT_SECRET, algorithms=[JWT_ALGORITHM])
         logger.info(f"Payload: {payload}")
         logger.info(f"Token: {token}")
+        
+        # Set all required state values
         request.state.user_id = payload.get("user_id")
         request.state.user_class = payload.get("student_class")
+        request.state.role = payload.get("role")  # Add this line
+        request.state.qualification = payload.get("qualification")  # Add this line
+        
         logger.info(f"Authenticated user: {request.state.user_id}")
-            
-        # Fix: Continue to the next middleware/route handler
         response = await call_next(request)
         return response
         

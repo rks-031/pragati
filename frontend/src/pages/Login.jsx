@@ -53,7 +53,13 @@ function Login() {
       const response = await axios.post('/api/v1/login', payload);
       console.log("Login response:", response.data);
       alert(response.data.msg);
-      login(response.data.name);
+
+      login(
+            response.data.name, 
+            response.data.role, 
+            response.data.qualification
+        );
+        
       if (formData.role === 'teacher') {
         navigate('/upload-exam');
       } else {

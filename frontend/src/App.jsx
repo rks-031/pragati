@@ -13,7 +13,8 @@ import Modules from './components/Modules';
 import Quiz from './components/Quiz';
 import { AuthProvider } from './context/AuthContext';
 import Chapter from './components/Chapter';
-import ExamUpload from './pages/ExamUpload'; 
+import ExamUpload from './pages/ExamUpload';
+import ProtectedRoute from './components/ProtectedRoute';
 
 function App() {
   return (
@@ -30,7 +31,14 @@ function App() {
             <Route path="/modules-courses" element={<Modules />} />
             <Route path="/chapter/:subject/:topic" element={<Chapter />} />
             <Route path="/quiz" element={<Quiz />} />
-            <Route path="/upload-exam" element={<ExamUpload />} /> 
+            <Route 
+              path="/upload-exam" 
+              element={
+                <ProtectedRoute allowedRoles={['teacher']}>
+                  <ExamUpload />
+                </ProtectedRoute>
+              } 
+            />
           </Routes>
         </Container>
         <Footer />
