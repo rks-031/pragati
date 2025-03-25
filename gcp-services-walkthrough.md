@@ -1,3 +1,6 @@
+### Note 
+The links attached redirect to the **Strangers** GCP account and can only be accessed via it's G-account.
+
 ## GCP services used until now
 - Cloud Storage
 - Firestore 
