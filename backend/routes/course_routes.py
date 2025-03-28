@@ -3,7 +3,7 @@ from typing import Dict, Optional
 from venv import logger
 from fastapi import APIRouter, HTTPException, Query, Response, UploadFile, Request 
 import datetime
-from services.gcs_service import fetch_course_content
+from services.gcs_service import download_from_gcs, fetch_course_content
 
 router = APIRouter(tags=["Course"])
 
@@ -62,3 +62,11 @@ def get_courses(request: Request):
             raise HTTPException(status_code=500, detail=str(e))
     else:
         raise HTTPException(status_code=403, detail="Invalid role")
+    
+
+
+@router.post("/download")
+async def download_course_content(request: Request):
+    user_class = request.state.user_class
+    downloaded_files = await download_from_gcs(user_class)
+    return {"message": "Download initiated", "files": downloaded_files}

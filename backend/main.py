@@ -1,7 +1,9 @@
+import contextlib
 from typing import List
 from venv import logger
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
+from fastapi.staticfiles import StaticFiles
 import jwt  # type: ignore
 from config import read_yaml
 from routes.auth_routes import router as auth_router
@@ -10,12 +12,20 @@ from routes.assessment_routes import router as assessment_router
 from config.config import JWT_ALGORITHM, JWT_SECRET
 from fastapi.middleware.cors import CORSMiddleware  # type: ignore
 from logger.logging import get_logger
+from services.scheduler_services import scheduler
 
 # Fix: Use a string argument with the get_logger function
 logger = get_logger("main")
 excluded_paths = read_yaml.EXCLUDED_APIS
 
 app = FastAPI()
+
+app.mount("/offline-content", StaticFiles(directory="offline_content"), name="offline_content")
+@contextlib.asynccontextmanager
+async def lifespan(app: FastAPI):
+    scheduler.start()
+    yield
+    scheduler.shutdown()
 
 def is_excluded_path(path: str, method: str, excluded_paths: List[dict]) -> bool:
     path = path.rstrip('/')
