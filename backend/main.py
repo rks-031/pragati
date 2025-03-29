@@ -82,7 +82,8 @@ async def AuthMiddleware(request: Request, call_next):
         request.state.user_id = payload.get("user_id")
         request.state.user_class = payload.get("student_class")
         request.state.role = payload.get("role")  # Add this line
-        request.state.qualification = payload.get("qualification")  # Add this line
+        request.state.qualification = payload.get("qualification") 
+        request.state.username = payload.get("username")
         
         logger.info(f"Authenticated user: {request.state.user_id}")
         response = await call_next(request)

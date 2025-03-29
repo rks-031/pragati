@@ -1,9 +1,12 @@
 import random
 from typing import Dict, Optional
 from venv import logger
-from fastapi import APIRouter, HTTPException, Query, Response, UploadFile, Request 
-import datetime
+
+from fastapi import APIRouter, Form, HTTPException, Query, Response, UploadFile, Request 
+from services.db_services import is_file_already_downloaded
 from services.gcs_service import download_from_gcs, fetch_course_content
+from logger.logging import get_logger
+logger = get_logger(__name__)
 
 router = APIRouter(tags=["Course"])
 
@@ -66,7 +69,14 @@ def get_courses(request: Request):
 
 
 @router.post("/download")
-async def download_course_content(request: Request):
+async def download_course_content(request: Request, file_name: str = Form(...)):
+    username = request.state.username  # Assuming username is set in request state by middleware
     user_class = request.state.user_class
-    downloaded_files = await download_from_gcs(user_class)
-    return {"message": "Download initiated", "files": downloaded_files}
+    if is_file_already_downloaded(username, file_name):
+        raise HTTPException(status_code=400, detail="File already downloaded within the last 7 days")
+    
+    try:
+        file_path = download_from_gcs(user_class, file_name, username)
+        return {"message": "Download successful", "file_path": file_path}
+    except HTTPException as e:
+        return {"message": str(e)}

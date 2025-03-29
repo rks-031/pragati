@@ -6,7 +6,7 @@ import datetime
 from db.models import ForgotPasswordModel, LoginModel, RegisterModel, ResetPasswordModel
 from services.sms_service import send_sms
 from services.db_services import delete_otps, get_otp, get_user_by_apaar_id, get_user_by_phone, insert_otp, insert_user, update_user
-from utils.utils import create_jwt_token, hash_pin, verify_pin
+from utils.utils import create_jwt_token, generate_unique_username, hash_pin, verify_pin
 
 router = APIRouter(tags=["Auth"])
 
@@ -33,6 +33,7 @@ async def register(user: RegisterModel):
     
     user_data = user.model_dump()
     user_data["pin"] = hash_pin(user.pin)
+    user_data["username"]=generate_unique_username(user_data["name"])
     insert_user(user_data)
     return {"msg": "User registered successfully"}
 
@@ -68,7 +69,8 @@ async def login(user: LoginModel, response: Response):
         existing.get("student_class", "N/A"),
         existing["name"],
         existing["role"],
-        qualification  
+        qualification,
+        existing.get("username", "N/A")  
     )
     
     response.set_cookie(

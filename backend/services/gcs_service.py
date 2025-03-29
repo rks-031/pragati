@@ -6,6 +6,7 @@ from fastapi import HTTPException
 from config.config import GCS_BUCKET_NAME, GCS_CREDENTIALS
 import datetime
 from logger.logging import get_logger
+from db_services import create_download_entry
 
 storage_client = storage.Client.from_service_account_json(GCS_CREDENTIALS)
 bucket = storage_client.bucket(GCS_BUCKET_NAME)
@@ -77,29 +78,30 @@ def upload_file_to_gcs(file, content_type: str,
         raise HTTPException(status_code=500, detail=f"Failed to upload file to GCS: {str(e)}")
     
 
-async def download_from_gcs(user_class: str):
+def get_user_download_path(username: str, filename: str) -> str:
+    user_dir = os.path.join(DOWNLOAD_DIR, username)
+    if not os.path.exists(user_dir):
+        os.makedirs(user_dir)
+    return os.path.join(user_dir, filename)
+
+def download_from_gcs(user_class: str, filename: str, username: str):
     prefix = f"class/class {user_class}/Subjects/"
     blobs = list(bucket.list_blobs(prefix=prefix))
     
     if not blobs:
         raise HTTPException(status_code=404, detail="No course content found")
     
-    downloaded_files = []
     for blob in blobs:
         parts = blob.name.split("/")
         if len(parts) < 8:
             continue
         
-        filename = parts[7]
-        download_path = os.path.join(DOWNLOAD_DIR, filename)
-        
-        if filename.lower().endswith(('.mp4', '.mov', '.avi' )):
+        if parts[7] == filename:
+            download_path = get_user_download_path(username, filename)
             blob.download_to_filename(download_path)
-            downloaded_files.append(download_path)
+            create_download_entry(username, filename)
             print(f"Downloaded {filename} to {download_path}")
-            #del k lie cron job
-        else:
-            print(f"Skipped {filename}, unsupported format")
-
-    return downloaded_files
+            return download_path
+    
+    raise HTTPException(status_code=404, detail="File not found")
 
