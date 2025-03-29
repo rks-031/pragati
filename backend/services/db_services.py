@@ -5,11 +5,13 @@ from pymongo import MongoClient
 from config.config import DB_NAME, MONGODB_URI
 
 
+
 client = MongoClient(MONGODB_URI)
 db = client[DB_NAME]
 users_collection = db["users"]
 otps_collection = db["otps"]
 downloads_collection = db["user_downloads"]
+EXPIRY_SECONDS=datetime.timedelta(days=7)
 
 def get_user_by_phone(phone: str):
     return users_collection.find_one({"parent_phone": phone})
@@ -38,7 +40,7 @@ def create_download_entry(username: str, filename: str):
     download_entry = {
         "username": username,
         "filename": filename,
-        "created_at": datetime.datetime.now(),
+        "created_at": datetime.datetime.now(datetime.timezone.utc),
         "status": "downloaded"
     }
     downloads_collection.insert_one(download_entry)
@@ -47,7 +49,7 @@ def create_download_entry(username: str, filename: str):
 def is_file_already_downloaded(username: str, filename: str) -> bool:
     download_entry = downloads_collection.find_one({
         "username": username,
-        "filename": filename,
-        "status": "downloaded",
+        "filename": filename, 
+        "created_at": {"$gte":datetime.datetime.now(datetime.timezone.utc) - EXPIRY_SECONDS}
     })
     return download_entry is not None

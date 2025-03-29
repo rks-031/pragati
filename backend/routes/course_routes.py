@@ -69,14 +69,14 @@ def get_courses(request: Request):
 
 
 @router.post("/download")
-async def download_course_content(request: Request, file_name: str = Form(...)):
-    username = request.state.username  # Assuming username is set in request state by middleware
+def download_course_content(request: Request, file_name: str = Form(...)):
+    username = request.state.username  
     user_class = request.state.user_class
     if is_file_already_downloaded(username, file_name):
         raise HTTPException(status_code=400, detail="File already downloaded within the last 7 days")
     
     try:
-        file_path = download_from_gcs(user_class, file_name, username)
-        return {"message": "Download successful", "file_path": file_path}
+        signed_url = download_from_gcs(user_class, file_name, username)
+        return {"message": "Download successful", "file_path": signed_url}
     except HTTPException as e:
         return {"message": str(e)}
