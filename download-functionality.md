@@ -124,7 +124,3 @@ The download functionality allows users to:
    - Verify that the expired file is removed from the "My Downloads" page.
 
 ---
-
-## **Conclusion**
-
-This functionality provides a seamless way for users to download, view, and play videos offline while ensuring that expired files are automatically cleaned up. The use of **IndexedDB** ensures persistent storage and efficient management of downloaded files.
