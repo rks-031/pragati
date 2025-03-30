@@ -3,7 +3,7 @@ from typing import Dict, Optional
 from venv import logger
 
 from fastapi import APIRouter, Form, HTTPException, Query, Response, UploadFile, Request 
-from services.db_services import is_file_already_downloaded
+from services.db_services import is_file_already_downloaded, get_user_downloads, create_download_entry  # Import the function to log downloads
 from services.gcs_service import download_from_gcs, fetch_course_content
 from logger.logging import get_logger
 logger = get_logger(__name__)
@@ -70,13 +70,33 @@ def get_courses(request: Request):
 
 @router.post("/download")
 def download_course_content(request: Request, file_name: str = Form(...)):
-    username = request.state.username  
+    username = request.state.username
     user_class = request.state.user_class
+
+    # Check if the file was already downloaded within the last 7 days
     if is_file_already_downloaded(username, file_name):
         raise HTTPException(status_code=400, detail="File already downloaded within the last 7 days")
-    
+
     try:
+        # Generate a signed URL for the file
         signed_url = download_from_gcs(user_class, file_name, username)
-        return {"message": "Download successful", "file_path": signed_url}
+
+        # Log the download event in the database
+        create_download_entry(username, file_name)
+
+        return {"message": "Download successful", "signed_url": signed_url}
     except HTTPException as e:
-        return {"message": str(e)}
+        raise e
+    except Exception as e:
+        logger.error(f"Error generating signed URL for {file_name}: {e}")
+        raise HTTPException(status_code=500, detail="Failed to generate signed URL")
+
+@router.get("/my-downloads")
+def get_my_downloads(request: Request):
+    username = request.state.username
+    try:
+        downloads = get_user_downloads(username)
+        return {"downloads": downloads}
+    except Exception as e:
+        logger.error(f"Error fetching downloads for user {username}: {e}")
+        raise HTTPException(status_code=500, detail="Failed to fetch downloads")

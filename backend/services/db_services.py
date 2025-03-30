@@ -53,3 +53,21 @@ def is_file_already_downloaded(username: str, filename: str) -> bool:
         "created_at": {"$gte":datetime.datetime.now(datetime.timezone.utc) - EXPIRY_SECONDS}
     })
     return download_entry is not None
+
+def get_user_downloads(username: str):
+    downloads = downloads_collection.find({"username": username})
+    return [
+        {
+            "filename": download["filename"],
+            "created_at": download["created_at"],
+            "expires_at": download["created_at"] + EXPIRY_SECONDS,
+        }
+        for download in downloads
+    ]
+
+def delete_expired_downloads():
+    now = datetime.datetime.now(datetime.timezone.utc)
+    downloads_collection.delete_many({
+        "created_at": {"$lt": now - EXPIRY_SECONDS}
+    })
+    print("Expired downloads removed from the database.")

@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
 import Dashboard from './components/Dashboard';
 import NavigationBar from './components/Navbar';
 import Login from './pages/Login';
@@ -15,8 +15,20 @@ import { AuthProvider } from './context/AuthContext';
 import Chapter from './components/Chapter';
 import ExamUpload from './pages/ExamUpload';
 import ProtectedRoute from './components/ProtectedRoute';
+import MyDownloads from './pages/MyDownloads';
 
 function App() {
+  const isOnline = navigator.onLine;
+
+  if (!isOnline) {
+    return (
+      <Routes>
+        <Route path="/my-downloads" element={<MyDownloads />} />
+        <Route path="*" element={<Navigate to="/my-downloads" />} />
+      </Routes>
+    );
+  }
+
   return (
     <AuthProvider>
       <Router>
@@ -39,6 +51,7 @@ function App() {
                 </ProtectedRoute>
               } 
             />
+            <Route path="/my-downloads" element={<MyDownloads />} />
           </Routes>
         </Container>
         <Footer />

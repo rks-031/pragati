@@ -1,6 +1,7 @@
-
 from apscheduler.schedulers.background import BackgroundScheduler
 from logger.logging import get_logger
+from services.db_services import delete_expired_downloads
+
 scheduler = BackgroundScheduler()
 logger = get_logger(__name__)
 
@@ -30,9 +31,13 @@ def cleanup_old_files():
         else:
             print(f"{filename} is not a file, skipping.")
 
+def cleanup_old_files_and_db():
+    cleanup_old_files()  # Existing function to clean up local files
+    delete_expired_downloads()  # New function to clean up expired downloads in the database
+
 def start_scheduler():
     if not scheduler.running:
         scheduler.start()
         logger.info("Scheduler started.")
-    scheduler.add_job(cleanup_old_files, 'interval', days=1, id="cleanup_old_files", replace_existing=True)
-    
+    scheduler.add_job(cleanup_old_files_and_db, 'interval', days=1, id="cleanup_old_files_and_db", replace_existing=True)
+

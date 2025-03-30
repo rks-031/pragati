@@ -1,4 +1,3 @@
-
 import os
 from typing import Optional
 from google.cloud import storage
@@ -86,7 +85,7 @@ def get_user_download_path(username: str, filename: str) -> str:
 
 def generate_signed_url(blob_name):
     blob = bucket.blob(blob_name)
-    url = blob.generate_signed_url(expiration=datetime.timedelta(hours=1))
+    url = blob.generate_signed_url(expiration=datetime.timedelta(hours=1))  # 1-hour expiration
     return url
 
 def find_blob(user_class: str, filename: str):

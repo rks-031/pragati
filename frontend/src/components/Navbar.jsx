@@ -43,6 +43,9 @@ function NavigationBar() {
               <Nav.Link as={Link} to="/teach">Teach</Nav.Link>
               <Nav.Link as={Link} to="/explore">Explore</Nav.Link>
               <Nav.Link as={Link} to="/community">Community</Nav.Link>
+              {userRole === 'student' && (
+                <Nav.Link as={Link} to="/my-downloads">My Downloads</Nav.Link>
+              )}
             </Nav>
           )}
 
