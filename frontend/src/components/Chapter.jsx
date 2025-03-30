@@ -90,17 +90,19 @@ const Chapter = () => {
                   allowFullScreen
                 ></iframe>
               </div>
+              <div className='text-center mt-2'>
+                <Button
+                  variant="primary"
+                  onClick={() => handleDownloadVideo(videoUrl)}
+                  style={{ backgroundColor: 'green', color: 'white', marginBottom: 0 }}
+                >
+                  Download Video ⬇️
+                </Button>
+              </div>
             </div>
           ))}
         </Modal.Body>
-        <Modal.Footer className="justify-content-center">
-          <Button
-            variant="primary"
-            onClick={() => handleDownloadVideo(videoUrl)}
-            style={{ backgroundColor: 'green', color: 'white' }}
-          >
-            Download Video ⬇️
-          </Button>
+        <Modal.Footer className="justify-content-center ">
           <Button
             variant="primary"
             onClick={() => selectedContent?.notes?.[0] && handleDownloadNotes(selectedContent.notes[0])}
