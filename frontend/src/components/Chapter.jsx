@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useLocation, useParams } from 'react-router-dom';
 import { Container, Card, Modal, Button, Row, Col } from 'react-bootstrap';
 import "../styles/chapter.css";
-import { saveFileToIndexedDB, getFileFromIndexedDB } from '../utils/indexedDB'; // Import IndexedDB utility
+import { saveFileToIndexedDB, getFileFromIndexedDB } from '../utils/indexedDB';
 
 const Chapter = () => {
   const { subject, topic } = useParams();
@@ -33,20 +33,19 @@ const Chapter = () => {
     }
   };
 
-  const handleDownloadVideo = async (videoUrl, filename) => {
+  const handleDownloadVideo = async (videoUrl) => {
     try {
-      // Check if the file already exists in IndexedDB
+      const filename = videoUrl.substring(videoUrl.lastIndexOf('/') + 1);
+
       const existingFile = await getFileFromIndexedDB(filename);
       if (existingFile) {
         alert('This video is already downloaded!');
         return;
       }
 
-      // Fetch the video file
       const response = await fetch(videoUrl);
       const blob = await response.blob();
 
-      // Save the video to IndexedDB
       await saveFileToIndexedDB(filename, blob);
       alert('Video downloaded successfully!');
     } catch (error) {
@@ -60,8 +59,8 @@ const Chapter = () => {
       <Row xs={1} md={2} lg={3} className="g-4">
         {Object.entries(state.modules).map(([module, content]) => (
           <Col key={module}>
-            <Card 
-              className="h-100 shadow-sm cursor-pointer" 
+            <Card
+              className="h-100 shadow-sm cursor-pointer"
               onClick={() => handleModuleClick(content)}
             >
               <Card.Body>
@@ -91,24 +90,26 @@ const Chapter = () => {
                   allowFullScreen
                 ></iframe>
               </div>
-              <Button
-                variant="primary"
-                onClick={() => handleDownloadVideo(videoUrl, `${selectedContent.moduleName}_video_${index + 1}.mp4`)}
-              >
-                Download Video
-              </Button>
             </div>
           ))}
         </Modal.Body>
         <Modal.Footer className="justify-content-center">
-          <Button 
+          <Button
+            variant="primary"
+            onClick={() => handleDownloadVideo(videoUrl)}
+            style={{ backgroundColor: 'green', color: 'white' }}
+          >
+            Download Video ⬇️
+          </Button>
+          <Button
             variant="primary"
             onClick={() => selectedContent?.notes?.[0] && handleDownloadNotes(selectedContent.notes[0])}
             disabled={!selectedContent?.notes?.[0]}
+            style={{ backgroundColor: 'green', color: 'white' }}
           >
-            Download Notes
+            Download Notes ⬇️
           </Button>
-          <Button 
+          <Button
             variant="secondary"
             onClick={() => selectedContent?.notes?.[0] && window.open(selectedContent.notes[0], '_blank')}
             disabled={!selectedContent?.notes?.[0]}

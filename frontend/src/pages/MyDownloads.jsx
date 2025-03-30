@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { getFileFromIndexedDB, deleteExpiredFiles } from '../utils/indexedDB';
+import thumbnail from '../assets/thumbnail-image.jpg';
 
 const EXPIRY_TIME = 7 * 24 * 60 * 60 * 1000; // 7 days in milliseconds
 
@@ -51,18 +52,51 @@ const MyDownloads = () => {
       const file = await getFileFromIndexedDB(filename);
       if (file) {
         const url = URL.createObjectURL(file.blob);
-        const videoWindow = window.open();
-        videoWindow.document.body.style.margin = '0';
-        const videoElement = videoWindow.document.createElement('video');
+
+        // Open the video in a dialog box
+        const videoDialog = document.createElement('div');
+        videoDialog.style.position = 'fixed';
+        videoDialog.style.top = '50%';
+        videoDialog.style.left = '50%';
+        videoDialog.style.transform = 'translate(-50%, -50%)';
+        videoDialog.style.width = '80%';
+        videoDialog.style.height = '60%';
+        videoDialog.style.backgroundColor = '#000';
+        videoDialog.style.zIndex = '1000';
+        videoDialog.style.borderRadius = '8px';
+        videoDialog.style.overflow = 'hidden';
+        videoDialog.style.boxShadow = '0 4px 8px rgba(0, 0, 0, 0.2)';
+
+        const videoElement = document.createElement('video');
         videoElement.controls = true;
         videoElement.autoplay = true;
         videoElement.style.width = '100%';
         videoElement.style.height = '100%';
-        const sourceElement = videoWindow.document.createElement('source');
+
+        const sourceElement = document.createElement('source');
         sourceElement.src = url;
         sourceElement.type = 'video/mp4';
+
         videoElement.appendChild(sourceElement);
-        videoWindow.document.body.appendChild(videoElement);
+        videoDialog.appendChild(videoElement);
+
+        const closeButton = document.createElement('button');
+        closeButton.textContent = '❌ ';
+        closeButton.style.position = 'absolute';
+        closeButton.style.top = '10px';
+        closeButton.style.right = '10px';
+        closeButton.style.backgroundColor = '#fff';
+        closeButton.style.border = 'none';
+        closeButton.style.padding = '8px 12px';
+        closeButton.style.cursor = 'pointer';
+        closeButton.style.borderRadius = '4px';
+        closeButton.style.boxShadow = '0 2px 4px rgba(0, 0, 0, 0.2)';
+        closeButton.onclick = () => {
+          document.body.removeChild(videoDialog);
+        };
+
+        videoDialog.appendChild(closeButton);
+        document.body.appendChild(videoDialog);
       } else {
         alert('Video not available offline. Please re-download.');
       }
@@ -79,17 +113,31 @@ const MyDownloads = () => {
   };
 
   return (
-    <div>
-      <h2>My Downloads</h2>
-      <ul>
+    <div className="container mt-5">
+      <h2 className="text-center mb-4">My Downloads</h2>
+      <div className="row">
         {downloads.map((download) => (
-          <li key={download.filename}>
-            <span>{download.filename}</span>
-            <span> - Expires in: {formatRemainingTime(download.remainingTime)}</span>
-            <button onClick={() => handlePlayVideo(download.filename)}>Play</button>
-          </li>
+          <div key={download.filename} className="col-md-4 mb-4">
+            <div className="card shadow-sm">
+              <div className="card-body text-center">
+                <div className="mb-3">
+                  <img
+                    src={thumbnail} //thumbnail
+                    alt={download.filename}
+                    className="img-fluid"
+                    style={{ maxWidth: '50%', height: 'auto', cursor: 'pointer' }} // Maintain aspect ratio and indicate clickable
+                    onClick={() => handlePlayVideo(download.filename)} // Play video on thumbnail click
+                  />
+                </div>
+                <h5 className="card-title">{download.filename}</h5>
+                <p className="badge bg-secondary">
+                  Expires in: {formatRemainingTime(download.remainingTime)}
+                </p>
+              </div>
+            </div>
+          </div>
         ))}
-      </ul>
+      </div>
     </div>
   );
 };
