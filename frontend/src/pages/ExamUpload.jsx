@@ -94,20 +94,6 @@ const ExamUpload = () => {
         return courseContent[selectedClass][selectedSubject];
     }, [selectedClass, selectedSubject, courseContent]);
 
-
-    // Add debugging logs
-    useEffect(() => {
-        console.log({
-            courseContent,
-            allowedClasses,
-            selectedClass,
-            subjects,
-            selectedSubject,
-            chapters
-        });
-    }, [courseContent, allowedClasses, selectedClass, subjects, selectedSubject, chapters]);
-
-
     const handleSubmit = async (e) => {
         e.preventDefault();
         setError('');
@@ -129,12 +115,12 @@ const ExamUpload = () => {
         }
     
         const formData = new FormData();
-        formData.append('class', selectedClass);
+        formData.append('class_name', selectedClass);
         formData.append('subject', selectedSubject);
         formData.append('chapters', JSON.stringify(selectedChapters));
-        formData.append('start_date', startDate.toISOString());
-        formData.append('end_date', endDate.toISOString());
-        formData.append('file', questionPaper);  // Change 'questionPaper' to 'file'
+        formData.append('start_date', startDate.toISOString().split('T')[0]);
+        formData.append('end_date', endDate.toISOString().split('T')[0]);
+        formData.append('file', questionPaper);
     
         try {
             const response = await axios.post('/api/v1/upload_assessment', formData, {
@@ -276,16 +262,16 @@ const ExamUpload = () => {
                             </Form.Group>
 
                             <Form.Group className="mb-2">
-                                <Form.Label>Question Paper</Form.Label>
+                                <Form.Label>Add Question Paper</Form.Label>
                                 <Form.Control
                                     type="file"
                                     onChange={(e) => setQuestionPaper(e.target.files[0])}
                                     accept=".pdf,.doc,.docx"
                                     required
                                 />
-                                <Form.Text className="text-muted">
+                                {/* <Form.Text className="text-muted">
                                     Accepted formats: PDF, DOC, DOCX
-                                </Form.Text>
+                                </Form.Text> */}
                             </Form.Group>
 
                             <div className="text-center">
