@@ -1,4 +1,3 @@
-
 import os
 from typing import Optional
 from google.cloud import storage
@@ -59,13 +58,19 @@ def fetch_course_content(user_class: str) -> dict:
 
 def upload_file_to_gcs(file, content_type: str, 
                       file_path: Optional[str]=None,
-                      bucket_name: Optional[str] = None) -> dict:
+                      bucket_name: Optional[str] = None,
+                      metadata: Optional[dict] = None) -> dict:
     
     try:
         bucket = storage_client.bucket(bucket_name)
         # Upload the file to GCS
         logger.debug(f"Attempting to upload file to GCS: {file_path}")
         blob = bucket.blob(file_path)
+        
+        # Set metadata if provided
+        if metadata:
+            blob.metadata = metadata
+            
         blob.upload_from_file(file.file, content_type=content_type)
 
         # Return the file URL
