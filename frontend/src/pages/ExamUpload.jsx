@@ -138,6 +138,8 @@ const ExamUpload = () => {
                 setStartDate(null);
                 setEndDate(null);
                 setQuestionPaper(null);
+                // Reset the file input element
+                document.getElementById('questionPaperInput').value = '';
             }
         } catch (error) {
             console.error('Error uploading assessment:', error);
@@ -265,6 +267,7 @@ const ExamUpload = () => {
                                 <Form.Label>Add Question Paper</Form.Label>
                                 <Form.Control
                                     type="file"
+                                    id="questionPaperInput"
                                     onChange={(e) => setQuestionPaper(e.target.files[0])}
                                     accept=".pdf,.doc,.docx"
                                     required
