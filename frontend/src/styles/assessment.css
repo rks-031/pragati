@@ -35,14 +35,16 @@
   .section-title {
     color: #6A5ACD; /* Slate blue */
     font-size: 24px;
-    margin-bottom: 15px;
+    margin: 2rem 0 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid #f0f0f0;
     font-weight: 500;
   }
   
   .assessment-cards {
     display: flex;
     gap: 15px;
-    margin-bottom: 30px;
+    margin-bottom: 2rem;
   }
   
   .assessment-card {
@@ -166,6 +168,10 @@
     color: #6A5ACD; /* Slate blue */
     font-weight: 600;
     font-size: 16px;
+  }
+  
+  .card-footer .text-muted {
+    font-style: italic;
   }
   
   /* Responsive design */

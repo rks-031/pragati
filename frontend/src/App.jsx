@@ -15,6 +15,7 @@ import { AuthProvider } from './context/AuthContext';
 import Chapter from './components/Chapter';
 import ExamUpload from './pages/ExamUpload';
 import ProtectedRoute from './components/ProtectedRoute';
+import QuizPortal from './components/QuizPortal';
 
 function App() {
   return (
@@ -31,6 +32,7 @@ function App() {
             <Route path="/modules-courses" element={<Modules />} />
             <Route path="/chapter/:subject/:topic" element={<Chapter />} />
             <Route path="/quiz" element={<Quiz />} />
+            <Route path="/quiz/:assessmentId" element={<QuizPortal />} />
             <Route 
               path="/upload-exam" 
               element={

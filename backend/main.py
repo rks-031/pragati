@@ -13,6 +13,8 @@ from config.config import JWT_ALGORITHM, JWT_SECRET
 from fastapi.middleware.cors import CORSMiddleware  # type: ignore
 from logger.logging import get_logger
 from services.scheduler_services import scheduler
+from dotenv import load_dotenv
+load_dotenv()
 
 # Fix: Use a string argument with the get_logger function
 logger = get_logger("main")
