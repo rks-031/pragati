@@ -25,7 +25,15 @@ def insert_otp(otp_data: Dict):
     return otps_collection.insert_one(otp_data)
 
 def get_otp(data: Dict):
-    return otps_collection.find_one({"phone": data.phone, "otp": data.otp})
+    otp_doc = otps_collection.find_one({
+        "phone": data.phone,
+        "otp": data.otp,
+        # Ensure OTP hasn't expired
+        "created_at": {
+            "$gte": datetime.datetime.now(datetime.timezone.utc) - datetime.timedelta(minutes=5)
+        }
+    })
+    return otp_doc
 
 def update_user(query: Dict, update: Dict):
     return users_collection.update_one(query, update) 

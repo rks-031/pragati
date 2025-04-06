@@ -4,11 +4,14 @@ from venv import logger
 from fastapi import APIRouter, HTTPException, Query, Response, UploadFile, Request  # type: ignore
 import datetime
 from db.models import ForgotPasswordModel, LoginModel, RegisterModel, ResetPasswordModel
-from services.sms_service import send_sms
 from services.db_services import delete_otps, get_otp, get_user_by_apaar_id, get_user_by_phone, insert_otp, insert_user, update_user
 from utils.utils import create_jwt_token, generate_unique_username, hash_pin, verify_pin
+from services.aws_sms_service import AWSSMSService
 
 router = APIRouter(tags=["Auth"])
+
+# Initialize SMS service
+sms_service = AWSSMSService()
 
 def get_role_based_data(user: RegisterModel):
     if user.role.value == "teacher":
@@ -91,48 +94,70 @@ async def login(user: LoginModel, response: Response):
 
 @router.post("/forgot-password")
 async def forgot_password(data: ForgotPasswordModel):
-    # Verify that the user exists
-    existing = get_user_by_phone(data.phone)
-    if not existing:
-        raise HTTPException(status_code=400, detail="User not found")
-
-    # Generate a 6-digit OTP and store it with a creation timestamp
-    otp = str(random.randint(100000, 999999))
-    otp_data = {
-        "phone": data.phone,
-        "otp": otp,
-        "created_at": datetime.datetime.utcnow()
-    }
-    insert_otp(otp_data)
-
-    # Send the OTP via SMS using the Twilio service
     try:
-        message_sid = send_sms(data.phone, otp)
+        existing = get_user_by_phone(data.phone)
+        if not existing:
+            raise HTTPException(status_code=400, detail="User not found")
+
+        otp = str(random.randint(100000, 999999))
+        otp_data = {
+            "phone": data.phone,
+            "otp": otp,
+            # Store with UTC timezone
+            "created_at": datetime.datetime.now(datetime.timezone.utc)
+        }
+        
+        insert_otp(otp_data)
+
+        try:
+            result = sms_service.send_sms(data.phone, otp)
+            return {"msg": "OTP sent to your registered phone number", "message_id": result['message_id']}
+        except Exception as e:
+            print(f"SMS sending error: {str(e)}")
+            raise HTTPException(status_code=500, detail=f"Failed to send SMS: {str(e)}")
+            
+    except HTTPException:
+        raise
     except Exception as e:
-        # Optionally, remove the stored OTP or handle the error appropriately
-        # todo handle error
-        raise HTTPException(status_code=500, detail=str(e))
-
-    return {"msg": "OTP sent to your registered phone number", "message_sid": message_sid}
-
-
+        print(f"Unexpected error: {str(e)}")
+        raise HTTPException(status_code=500, detail="Internal server error")
 
 @router.post("/reset-password")
 async def reset_password(data: ResetPasswordModel):
-    # Retrieve the OTP document
-    otp_doc = get_otp(data)
-    if not otp_doc:
-        raise HTTPException(status_code=400, detail="Invalid OTP")
+    try:
+        # Retrieve the OTP document
+        otp_doc = get_otp(data)
+        if not otp_doc:
+            raise HTTPException(status_code=400, detail="Invalid OTP")
 
-    if datetime.datetime.now(datetime.timezone.utc) - otp_doc["created_at"] > datetime.timedelta(minutes=5):
-        raise HTTPException(status_code=400, detail="OTP expired")
+        # Compare timestamps with proper timezone awareness
+        current_time = datetime.datetime.now(datetime.timezone.utc)
+        otp_time = otp_doc["created_at"]
+        
+        # Ensure OTP time has timezone info
+        if otp_time.tzinfo is None:
+            otp_time = otp_time.replace(tzinfo=datetime.timezone.utc)
+            
+        if current_time - otp_time > datetime.timedelta(minutes=5):
+            delete_otps(str(otp_doc["_id"]))  # Clean up expired OTP
+            raise HTTPException(status_code=400, detail="OTP expired")
 
-    hashed_pin = hash_pin(data.new_pin)
-    update_user({"parent_phone": data.phone}, {"pin": hashed_pin})
+        # Update user's PIN
+        hashed_pin = hash_pin(data.new_pin)
+        result = update_user({"parent_phone": data.phone}, {"$set": {"pin": hashed_pin}})
+        
+        if result.modified_count == 0:
+            raise HTTPException(status_code=400, detail="Failed to update PIN")
 
-    # Remove the OTP document after a successful password reset
-    delete_otps(str(otp_doc["_id"]))
-    return {"msg": "PIN updated successfully"}
+        # Clean up used OTP
+        delete_otps(str(otp_doc["_id"]))
+        return {"msg": "PIN updated successfully"}
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        print(f"Reset password error: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
 
 @router.post("/logout")
 async def logout(response: Response):
@@ -143,4 +168,3 @@ async def logout(response: Response):
     except Exception as e:
         logger.error(f"Failed to log out: {e}")
         raise HTTPException(status_code=500, detail=str(e))
-    
