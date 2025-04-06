@@ -4,6 +4,8 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
+# testing the AWS SNS service for sending SMS
+# This script will send a test SMS to a specified number using the AWS SNS service.
 def test_aws_sns():
     sms_service = AWSSMSService()
     test_number = 8210788702  # Your number
