@@ -6,3 +6,7 @@ app:
     method: POST
   - path: /api/v1/logout
     method: POST
+  - path: /api/v1/forgot-password
+    method: POST
+  - path: /api/v1/reset-password
+    method: POST

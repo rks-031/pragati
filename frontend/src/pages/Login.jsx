@@ -142,6 +142,10 @@ function Login() {
             <Button variant="primary" type="submit" className="w-100 mt-4 mb-4">
               Login
             </Button>
+
+            <div className="text-center mt-2">
+              <Link to="/forgot-password">Forgot PIN?</Link>
+            </div>
           </Form>
 
           <p className="text-center mt-3">

@@ -129,3 +129,10 @@ dmypy.json
 *.ipynb
 
 offline_content/
+
+# JSON credentials files
+model-magnet-453318-g1-3dcbf737e049.json
+model-magnet-453318-g1-firebase-adminsdk-fbsvc-c3d56934b7.json
+
+# AWS access key and secret key
+sms-service_accessKeys.csv

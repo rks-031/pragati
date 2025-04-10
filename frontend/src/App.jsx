@@ -16,6 +16,7 @@ import Chapter from './components/Chapter';
 import ExamUpload from './pages/ExamUpload';
 import ProtectedRoute from './components/ProtectedRoute';
 import QuizPortal from './components/QuizPortal';
+import ForgotPassword from './pages/ForgotPassword';
 
 function App() {
   return (
@@ -33,6 +34,7 @@ function App() {
             <Route path="/chapter/:subject/:topic" element={<Chapter />} />
             <Route path="/quiz" element={<Quiz />} />
             <Route path="/quiz/:assessmentId" element={<QuizPortal />} />
+            <Route path="/forgot-password" element={<ForgotPassword />} />
             <Route 
               path="/upload-exam" 
               element={
