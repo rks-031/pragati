@@ -22,3 +22,10 @@ pip install -r requirements.txt
 python run.py
 
 ```
+
+## AWS SNS configuration
+
+- Create a new IAM user in the ***ap-south-1*** region.
+- Attach ***AmazonSNSFullAccess*** policy to it and create the user.
+- Once the user is created, create access key (Access Key and Secret Key will be generated).
+
