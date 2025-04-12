@@ -151,7 +151,7 @@ async def get_quiz(request: Request,assessment_id: str):
         quiz_data = doc.to_dict()
         end_date= quiz_data.get("end_date")
         if end_date < current_date:
-            raise HTTPException(status_code=400, detail="Quiz has expired")
+            raise HTTPException(status_code=403, detail="Quiz has expired")
         return {
             "status": "success",
             "extracted_text": quiz_data.get("extracted_text", ""),
