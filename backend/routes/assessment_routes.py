@@ -138,18 +138,20 @@ async def get_assessments(request: Request, class_id: str):
 @router.get("/get_quiz/{assessment_id}")
 async def get_quiz(request: Request,assessment_id: str):
     user_id= request.state.user_id
-    #if that assessment id exist in report databse it menas user has attempted then return 403
-    res= get_user_report(user_id)
-    if not res:
-        raise HTTPException(status_code=403, detail="You have already attempted this quiz")
+    
     try:
         db = firestore.Client()
         doc = db.collection("Question_papers").document(assessment_id).get()
         
         if not doc.exists:
             raise HTTPException(status_code=404, detail="Quiz not found")
-            
+        #check if quiz is expired
+        current_date = datetime.datetime.now().strftime("%Y-%m-%d")
+     
         quiz_data = doc.to_dict()
+        end_date= quiz_data.get("end_date")
+        if end_date < current_date:
+            raise HTTPException(status_code=400, detail="Quiz has expired")
         return {
             "status": "success",
             "extracted_text": quiz_data.get("extracted_text", ""),
