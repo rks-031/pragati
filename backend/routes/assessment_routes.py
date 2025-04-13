@@ -6,7 +6,7 @@ import datetime
 import json
 from db.models import AnswerSubmission
 from utils.utils import parse_extracted_text
-from services.db_services import get_user_report, make_score_entry
+from services.db_services import get_user_report, get_user_report_specific_exam, make_score_entry
 from services.gcs_service import fetch_course_content, upload_file_to_gcs
 from config.config import GCS_ASSESMENT_BUCKET_NAME
 from logger.logging import get_logger
@@ -188,9 +188,6 @@ async def get_quiz(request: Request,assessment_id: str):
 
 
 
-
-
-
 @router.post("/submit_quiz/{assessment_id}")
 async def submit_quiz(
     request: Request,
@@ -245,3 +242,4 @@ async def submit_quiz(
     except Exception as e:
         logger.error(f"Error submitting quiz: {e}")
         raise HTTPException(status_code=500, detail=str(e))
+    
