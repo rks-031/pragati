@@ -41,3 +41,7 @@ class ResetPasswordModel(BaseModel):
     phone: int
     otp: str
     new_pin: str 
+
+class AnswerSubmission(BaseModel):
+    questionIndex: int
+    selected: str
