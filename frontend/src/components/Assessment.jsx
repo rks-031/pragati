@@ -130,10 +130,10 @@ const AssessmentDashboard = () => {
             <p>{error}</p>
           ) : (
             <div className="assessment-cards">
-              {assessments.active.map((assessment, index) => 
+              {(assessments.active || []).map((assessment, index) => 
                 renderAssessmentCard(assessment, index)
               )}
-              {assessments.active.length === 0 && (
+              {assessments.active?.length === 0 && (
                 <p>No active assessments available</p>
               )}
             </div>
@@ -146,10 +146,10 @@ const AssessmentDashboard = () => {
             <p>{error}</p>
           ) : (
             <div className="assessment-cards">
-              {assessments.upcoming.map((assessment, index) => 
+              {(assessments.upcoming || []).map((assessment, index) => 
                 renderAssessmentCard(assessment, index, true)
               )}
-              {assessments.upcoming.length === 0 && (
+              {assessments.upcoming?.length === 0 && (
                 <p>No upcoming assessments scheduled</p>
               )}
             </div>
@@ -162,10 +162,10 @@ const AssessmentDashboard = () => {
             <p>{error}</p>
           ) : (
             <div className="assessment-cards">
-              {assessments.previous.map((assessment, index) => 
+              {(assessments.previous || []).map((assessment, index) => 
                 renderAssessmentCard(assessment, index)
               )}
-              {assessments.previous.length === 0 && (
+              {assessments.previous?.length === 0 && (
                 <p>No previous assessments found</p>
               )}
             </div>
