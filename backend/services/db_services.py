@@ -63,11 +63,12 @@ def is_file_already_downloaded(username: str, filename: str) -> bool:
     })
     return download_entry is not None
 
-def make_score_entry(assessment_id: str, user_id: str, score: str):
+def make_score_entry(assessment_id: str, user_id: str, score: str,total: str):
     score_entry = {
         "assessment_id": assessment_id,
         "user_id": user_id,
         "score": score,
+        "score_out_of":total,
         "created_at": datetime.datetime.now(datetime.timezone.utc),
         "updated_at": datetime.datetime.now(datetime.timezone.utc)
     }

@@ -140,10 +140,15 @@ async def get_assessments(request: Request, class_id: str):
 @router.get("/get_quiz/{assessment_id}")
 async def get_quiz(request: Request,assessment_id: str):
     user_id= request.state.user_id
+    #check if user has previouslt attempted the quiz
+    user_scores = get_user_report_specific_exam(user_id, assessment_id)
+    if user_scores:
+        raise HTTPException(status_code=403, detail="You have already attempted this quiz")
     
     try:
         db = firestore.Client()
         doc = db.collection("Question_papers").document(assessment_id).get()
+        #
         
         if not doc.exists:
             raise HTTPException(status_code=404, detail="Quiz not found")
@@ -164,29 +169,6 @@ async def get_quiz(request: Request,assessment_id: str):
         logger.error(f"Error fetching quiz: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
-# @router.post("/mark_assessment_attempted/{assessment_id}")
-# async def mark_assessment_attempted(request:Request,assessment_id: str, score: str):
-#     user_id= request.state.user_id
-#     try:
-#         db = firestore.Client()
-#         assessment_ref = db.collection("Question_papers").document(assessment_id)
-        
-#         # Update the assessment document
-#         assessment_ref.update({
-#             "attempted": True,
-#             "score": score,
-#             "attempt_date": datetime.datetime.now().strftime("%Y-%m-%d")
-#         })
-#         make_score_entry(assessment_id, user_id, score)
-#         # Create a new document in the Scores collection
-        
-#         return {"status": "success", "message": "Assessment marked as attempted"}
-#     except Exception as e:
-#         logger.error(f"Error marking assessment as attempted: {e}")
-#         raise HTTPException(status_code=500, detail=str(e))
-    
-
-
 
 @router.post("/submit_quiz/{assessment_id}")
 async def submit_quiz(
@@ -195,6 +177,8 @@ async def submit_quiz(
     submissions: List[AnswerSubmission]
 ):
     user_id = request.state.user_id
+    
+
 
     try:
         db = firestore.Client()
@@ -208,10 +192,11 @@ async def submit_quiz(
         logger.info(f"Extracted text: {extracted_text}")
 
         parsed_questions = parse_extracted_text(extracted_text)  # You must define this
+        total=len(parsed_questions)
         logger.info(f"Parsed questions: {parsed_questions}")
 
         score = 0
-        total = len(submissions)
+        # total = len(submissions)
         result_detail = []
 
         for submission in submissions:
@@ -228,7 +213,7 @@ async def submit_quiz(
                 "isCorrect": is_correct
             })
 
-        make_score_entry(assessment_id, user_id, score)
+        make_score_entry(assessment_id, user_id, score,total)
 
         score_str = f"{score}/{total}"
 
@@ -242,4 +227,65 @@ async def submit_quiz(
     except Exception as e:
         logger.error(f"Error submitting quiz: {e}")
         raise HTTPException(status_code=500, detail=str(e))
+    
+@router.get("/get_quiz_result/{assessment_id}")
+async def get_quiz_result(request: Request, assessment_id: str):
+    user_id = request.state.user_id
+    user_scores = get_user_report_specific_exam(user_id, assessment_id)
+    if not user_scores:
+        raise HTTPException(status_code=404, detail="No quiz results found")
+    
+    score_str = user_scores.get("score")
+    score_out_of_str = user_scores.get("score_out_of")
+    if not score_out_of_str:
+        score_out_of_str = "25"
+    score_num = int(score_str)
+    score_out_of_num = int(score_out_of_str)
+    percentage = (score_num / score_out_of_num) * 100
+
+    return {
+        "score": score_num,
+        "percentage": percentage,
+        "score_out_of": score_out_of_num,
+    }
+    
+@router.get("/user/result")
+def get_user_result(request: Request):
+   
+    user_id = request.state.user_id
+    user_scores = get_user_report(user_id)
+    if not user_scores:
+        raise HTTPException(status_code=404, detail="No quiz results found")
+    total_exams = len(user_scores)
+    passed_exams = 0
+    failed_exams = 0
+    for score in user_scores:
+        score_str = score.get("score")
+        score_out_of_str = score.get("score_out_of")
+        if not score_out_of_str:
+            score_out_of_str = "25"
+        score_num = int(score_str)
+        score_out_of_num = int(score_out_of_str)
+        percentage = (score_num / score_out_of_num) * 100
+        if percentage >= 35:
+            passed_exams += 1
+        else:
+            failed_exams += 1
+    grade = ""
+    if passed_exams / total_exams >= 0.8:
+        grade = "A"
+    elif passed_exams / total_exams >= 0.6:
+        grade = "B"
+    elif passed_exams / total_exams >= 0.4:
+        grade = "C"
+    else:
+        grade = "D"
+
+    return {
+        "total_exams": total_exams,
+        "passed_exams": passed_exams,
+        "failed_exams": failed_exams,
+        "Grade":grade,
+    }
+
     
