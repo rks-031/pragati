@@ -5,6 +5,7 @@ from passlib.context import CryptContext # type: ignore
 import jwt # type: ignore
 from config.config import JWT_ALGORITHM, JWT_EXP_DELTA_SECONDS, JWT_SECRET
 from services.db_services import check_username_exists
+import re
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
@@ -42,3 +43,70 @@ def generate_unique_username(base_username: str) -> str:
         username = f"{base_username}{counter}"
         counter += 1
     return username
+
+
+
+# def parse_questions(raw_text):
+#     lines = raw_text.strip().split('\n')
+#     questions = []
+#     i = 0
+#     question_number = 1
+
+#     while i < len(lines):
+#         q_match = re.match(rf"{question_number}\.\s*(.*)", lines[i])
+#         if q_match:
+#             question_text = q_match.group(1).strip()
+#             options = []
+#             for j in range(1, 5):  # Expecting 4 options
+#                 options.append(re.sub(r"^[A-D]\)\s*", "", lines[i + j]).strip())
+#             answer_line = lines[i + 5]
+#             answer_match = re.match(r"Answer:\s*([A-D])", answer_line)
+#             answer = answer_match.group(1) if answer_match else None
+
+#             questions.append({
+#                 "question": question_text,
+#                 "options": options,
+#                 "answer": answer
+#             })
+
+#             i += 6  # move to next question
+#             question_number += 1
+#         else:
+#             i += 1  # Skip malformed lines
+
+#     return questions
+
+
+
+
+def parse_extracted_text(text: str):
+    pattern = re.compile(
+        r"\d+\.\s*(.*?)\n" +  # Question
+        r"A\)\s*(.*?)\n" +     # Option A
+        r"B\)\s*(.*?)\n" +     # Option B
+        r"C\)\s*(.*?)\n" +     # Option C
+        r"D\)\s*(.*?)\n" +     # Option D
+        r"Answer:\s*([ABCD])", # Answer
+        re.DOTALL
+    )
+
+    questions = []
+    for match in pattern.finditer(text):
+        question = match.group(1).strip()
+        options = {
+            "A": match.group(2).strip(),
+            "B": match.group(3).strip(),
+            "C": match.group(4).strip(),
+            "D": match.group(5).strip()
+        }
+        answer = match.group(6).strip()
+
+        questions.append({
+            "question": question,
+            "options": options,
+            "answer": answer
+        })
+
+    return questions
+
+

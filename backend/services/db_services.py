@@ -76,3 +76,6 @@ def make_score_entry(assessment_id: str, user_id: str, score: str):
 def get_user_report(user_id: str):
     scores = reports_collection.find({"user_id": user_id})
     return list(scores)
+
+def get_user_report_specific_exam(user_id: str, assessment_id: str):
+    return reports_collection.find_one({"user_id": user_id, "assessment_id": assessment_id})

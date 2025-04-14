@@ -1,10 +1,12 @@
 import random
-from typing import Dict, Optional, Set
+from typing import Dict, List, Optional, Set
 from venv import logger
 from fastapi import APIRouter, File, HTTPException, Query, Response, UploadFile, Request, Form 
 import datetime
 import json
-from services.db_services import get_user_report, make_score_entry
+from db.models import AnswerSubmission
+from utils.utils import parse_extracted_text
+from services.db_services import get_user_report, get_user_report_specific_exam, make_score_entry
 from services.gcs_service import fetch_course_content, upload_file_to_gcs
 from config.config import GCS_ASSESMENT_BUCKET_NAME
 from logger.logging import get_logger
@@ -162,23 +164,82 @@ async def get_quiz(request: Request,assessment_id: str):
         logger.error(f"Error fetching quiz: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
-@router.post("/mark_assessment_attempted/{assessment_id}")
-async def mark_assessment_attempted(request:Request,assessment_id: str, score: str):
-    user_id= request.state.user_id
+# @router.post("/mark_assessment_attempted/{assessment_id}")
+# async def mark_assessment_attempted(request:Request,assessment_id: str, score: str):
+#     user_id= request.state.user_id
+#     try:
+#         db = firestore.Client()
+#         assessment_ref = db.collection("Question_papers").document(assessment_id)
+        
+#         # Update the assessment document
+#         assessment_ref.update({
+#             "attempted": True,
+#             "score": score,
+#             "attempt_date": datetime.datetime.now().strftime("%Y-%m-%d")
+#         })
+#         make_score_entry(assessment_id, user_id, score)
+#         # Create a new document in the Scores collection
+        
+#         return {"status": "success", "message": "Assessment marked as attempted"}
+#     except Exception as e:
+#         logger.error(f"Error marking assessment as attempted: {e}")
+#         raise HTTPException(status_code=500, detail=str(e))
+    
+
+
+
+@router.post("/submit_quiz/{assessment_id}")
+async def submit_quiz(
+    request: Request,
+    assessment_id: str,
+    submissions: List[AnswerSubmission]
+):
+    user_id = request.state.user_id
+
     try:
         db = firestore.Client()
-        assessment_ref = db.collection("Question_papers").document(assessment_id)
-        
-        # Update the assessment document
-        assessment_ref.update({
-            "attempted": True,
-            "score": score,
-            "attempt_date": datetime.datetime.now().strftime("%Y-%m-%d")
-        })
+        doc = db.collection("Question_papers").document(assessment_id).get()
+
+        if not doc.exists:
+            raise HTTPException(status_code=404, detail="Assessment not found")
+
+        quiz_data = doc.to_dict()
+        extracted_text = quiz_data.get("extracted_text", "")
+        logger.info(f"Extracted text: {extracted_text}")
+
+        parsed_questions = parse_extracted_text(extracted_text)  # You must define this
+        logger.info(f"Parsed questions: {parsed_questions}")
+
+        score = 0
+        total = len(submissions)
+        result_detail = []
+
+        for submission in submissions:
+            q_index = submission.questionIndex
+            selected = submission.selected.upper()
+            correct = parsed_questions[q_index]["answer"]
+            is_correct = selected == correct
+            if is_correct:
+                score += 1
+            result_detail.append({
+                "question": parsed_questions[q_index]["question"],
+                "selected": selected,
+                "correct": correct,
+                "isCorrect": is_correct
+            })
+
         make_score_entry(assessment_id, user_id, score)
-        # Create a new document in the Scores collection
-        
-        return {"status": "success", "message": "Assessment marked as attempted"}
+
+        score_str = f"{score}/{total}"
+
+        return {
+            "status": "success",
+            "score_num": score,
+            "score": score_str,
+            "results": result_detail
+        }
+
     except Exception as e:
-        logger.error(f"Error marking assessment as attempted: {e}")
+        logger.error(f"Error submitting quiz: {e}")
         raise HTTPException(status_code=500, detail=str(e))
+    
