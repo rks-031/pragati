@@ -119,33 +119,26 @@ const QuizPortal = () => {
 
   const handleSubmit = async () => {
     setQuizSubmitted(true);
-    
-    // Calculate score
-    let correctAnswers = 0;
-    Object.entries(selectedAnswers).forEach(([index, answer]) => {
-        if (answer === quizData[index].correctAnswer) {
-            correctAnswers++;
-        }
-    });
 
-    const finalScore = `${correctAnswers}/${quizData.length}`;
+    const submissions = Object.entries(selectedAnswers).map(([index, answer]) => ({
+      questionIndex: parseInt(index),
+      selected: answer
+    }));
 
     try {
-        // Mark assessment as attempted
-        await axios.post(`/api/v1/mark_assessment_attempted/${assessmentId}`, {
-            score: finalScore
-        });
+      const response = await axios.post(`/api/v1/mark_assessment_attempted/${assessmentId}`, {
+        score: `${calculateScore()}/${quizData.length}`
+      });
 
-        // Navigate to results page
-        navigate('/assessment', {
-            state: { 
-                message: 'Quiz completed successfully!',
-                score: finalScore 
-            }
-        });
+      navigate('/assessment', {
+        state: { 
+          message: 'Quiz completed successfully!',
+          score: response.data.score
+        }
+      });
     } catch (error) {
-        console.error('Error submitting quiz:', error);
-        setError('Failed to submit quiz');
+      console.error('Error submitting quiz:', error);
+      setError('Failed to submit quiz');
     }
   };
 

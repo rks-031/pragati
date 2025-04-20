@@ -47,14 +47,8 @@ const AssessmentDashboard = () => {
       }
     };
 
-    // Show completion message if returning from quiz
-    if (location.state?.message) {
-      // You can add a toast notification here
-      console.log(location.state.message);
-    }
-
     fetchAssessments();
-  }, [location]);
+  }, []);
 
   const studentReport = {
     name: userName?.toUpperCase() || 'STUDENT',
@@ -73,47 +67,65 @@ const AssessmentDashboard = () => {
     navigate(`/quiz/${assessment.id}`);
   };
 
-  const renderAssessmentCard = (assessment, index, isUpcoming = false) => (
-    <div className="card mb-3" key={index}>
-      <div className="row g-0">
-        <div className="col-md-4">
-          <img src={assessment.image || maths} className="img-fluid rounded-start" alt={`${assessment.subject} resources`} />
-        </div>
-        <div className="col-md-8">
-          <div className="card-body">
-            <h5 className="card-title">{assessment.subject}</h5>
-            <span className="badge" style={{ backgroundColor: assessment.color || '#A4B8C4' }}>
-              {assessment.score}
-            </span>
-            <p className="card-text">
-              <small className="text-muted">Start: {formatDate(assessment.start_date)}</small><br />
-              <small className="text-muted">End: {formatDate(assessment.end_date)}</small>
-            </p>
+  const renderAssessmentCard = (assessment, index, isUpcoming = false) => {
+    const currentDate = new Date();
+    const endDate = new Date(assessment.end_date);
+    const isExpired = endDate < currentDate;
+
+    return (
+      <div className="card mb-3" key={index}>
+        <div className="row g-0">
+          <div className="col-md-4">
+            <img src={assessment.image || maths} className="img-fluid rounded-start" alt={`${assessment.subject} resources`} />
           </div>
-          <div className="card-footer">
-            {assessment.attempted ? (
-              <div className="text-success">
-                Completed - Score: {assessment.score}
-              </div>
-            ) : !isUpcoming && (
-              <button 
-                className="btn btn-primary"
-                onClick={() => handleStartQuiz(assessment)}
-                disabled={!assessment.id}
-              >
-                Start Quiz
-              </button>
-            )}
-            {isUpcoming && (
-              <span className="text-muted">
-                Available from {formatDate(assessment.start_date)}
+          <div className="col-md-8">
+            <div className="card-body">
+              <h5 className="card-title">{assessment.subject}</h5>
+              <span className="badge" style={{ backgroundColor: assessment.color || '#A4B8C4' }}>
+                {assessment.score}
               </span>
-            )}
+              <p className="card-text">
+                <small className="text-muted">Start: {formatDate(assessment.start_date)}</small><br />
+                <small className="text-muted">End: {formatDate(assessment.end_date)}</small>
+              </p>
+            </div>
+            <div className="card-footer">
+              {assessment.attempted ? (
+                <div className="text-success">
+                  Completed - Score: {assessment.score}
+                </div>
+              ) : isExpired ? (
+                <div className="tooltip-container">
+                  <button 
+                    className="btn btn-secondary" 
+                    disabled
+                  >
+                    Start Quiz
+                  </button>
+                  <div className="tooltip-message">
+                    😔 Sorry, the final date to attempt this exam has been passed. You cannot attempt it now. Be aware from next time! 🕒📚
+                  </div>
+                </div>
+              ) : !isUpcoming && (
+                <button 
+                  className="btn btn-primary"
+                  onClick={() => handleStartQuiz(assessment)}
+                  disabled={!assessment.id}
+                >
+                  Start Quiz
+                </button>
+              )}
+              {isUpcoming && (
+                <span className="text-muted">
+                  Available from {formatDate(assessment.start_date)}
+                </span>
+              )}
+            </div>
           </div>
         </div>
       </div>
-    </div>
-  );
+    );
+  };
 
   return (
     <div className="container-fluid">

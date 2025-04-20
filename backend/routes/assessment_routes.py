@@ -84,10 +84,15 @@ async def get_assessments(class_id: str):
 
         for doc in docs:
             assessment = doc.to_dict()
+            try:
+                chapters = json.loads(assessment.get("chapters", "[]"))
+            except json.JSONDecodeError:
+                chapters = []  # Default to an empty list if parsing fails
+
             assessment_data = {
                 "id": doc.id,
                 "subject": assessment.get("subject"),
-                "chapters": eval(assessment.get("chapters", "[]")),
+                "chapters": chapters,
                 "start_date": assessment.get("start_date"),
                 "end_date": assessment.get("end_date"),
                 "file_name": assessment.get("file_name"),
@@ -117,7 +122,7 @@ async def get_assessments(class_id: str):
 
     except Exception as e:
         logger.error(f"Error fetching assessments: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail="Failed to fetch assessments")
 
 @router.get("/get_quiz/{assessment_id}")
 async def get_quiz(assessment_id: str):
