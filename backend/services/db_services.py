@@ -11,6 +11,7 @@ db = client[DB_NAME]
 users_collection = db["users"]
 otps_collection = db["otps"]
 downloads_collection = db["user_downloads"]
+reports_collection = db["user_reports"]
 EXPIRY_SECONDS=datetime.timedelta(days=7)
 
 def get_user_by_phone(phone: str):
@@ -61,3 +62,21 @@ def is_file_already_downloaded(username: str, filename: str) -> bool:
         "created_at": {"$gte":datetime.datetime.now(datetime.timezone.utc) - EXPIRY_SECONDS}
     })
     return download_entry is not None
+
+def make_score_entry(assessment_id: str, user_id: str, score: str,total: str):
+    score_entry = {
+        "assessment_id": assessment_id,
+        "user_id": user_id,
+        "score": score,
+        "score_out_of":total,
+        "created_at": datetime.datetime.now(datetime.timezone.utc),
+        "updated_at": datetime.datetime.now(datetime.timezone.utc)
+    }
+    reports_collection.insert_one(score_entry)
+
+def get_user_report(user_id: str):
+    scores = reports_collection.find({"user_id": user_id})
+    return list(scores)
+
+def get_user_report_specific_exam(user_id: str, assessment_id: str):
+    return reports_collection.find_one({"user_id": user_id, "assessment_id": assessment_id})
