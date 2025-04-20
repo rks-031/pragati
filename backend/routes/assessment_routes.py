@@ -73,75 +73,59 @@ async def upload_assessment(
 
 
 @router.get("/get_assessments/{class_id}")
-async def get_assessments(request: Request, class_id: str):
+async def get_assessments(class_id: str):
     try:
         db = firestore.Client()
         current_date = datetime.datetime.now().strftime("%Y-%m-%d")
-        user_id = request.state.user_id
-
-        # Fetch assessments for class
+        
         assessments_ref = db.collection("Question_papers")
         query = assessments_ref.where(filter=FieldFilter("class", "==", class_id))  # Filter by class
         docs = query.stream()
 
-        # Fetch MongoDB scores for user
-        user_scores = get_user_report(user_id)
-        user_attempt_map = {score["assessment_id"]: score for score in user_scores}
-
-        # Prepare 4 categories
-        past_attempted = []
-        expired = []
-        active = []
-        upcoming = []
+        previous_assessments = []
+        active_assessments = []
+        upcoming_assessments = []
 
         for doc in docs:
             assessment = doc.to_dict()
+            if not assessment:
+                logger.warning(f"Empty document found for class_id: {class_id}")
+                continue  # Skip empty or invalid documents
 
             try:
                 chapters = json.loads(assessment.get("chapters", "[]"))
             except json.JSONDecodeError:
+                logger.error(f"Invalid JSON in 'chapters' field for document {doc.id}")
                 chapters = []  # Default to an empty list if parsing fails
 
-            assessment_id = doc.id
-            start_date = assessment.get("start_date")
-            end_date = assessment.get("end_date")
-            user_attempt = user_attempt_map.get(assessment_id)
-            is_attempted = user_attempt is not None
-
-
             assessment_data = {
-                "id": assessment_id,
-                "subject": assessment.get("subject"),
-
+                "id": doc.id,
+                "subject": assessment.get("subject", "Unknown Subject"),
                 "chapters": chapters,
-                "start_date": assessment.get("start_date"),
-                "end_date": assessment.get("end_date"),
-
-                "chapters": eval(assessment.get("chapters", "[]")),
-                "start_date": start_date,
-                "end_date": end_date,
-
-                "file_name": assessment.get("file_name"),
-                "score": user_attempt.get("score") if is_attempted else "00/10",
-                "attempted": is_attempted
+                "start_date": assessment.get("start_date", "1970-01-01"),
+                "end_date": assessment.get("end_date", "1970-01-01"),
+                "file_name": assessment.get("file_name", "Unknown File"),
+                "score": assessment.get("score", "00/10"),
+                "attempted": assessment.get("attempted", False)
             }
 
-            if is_attempted:
-                past_attempted.append(assessment_data)
-            elif start_date > current_date:
-                upcoming.append(assessment_data)
-            elif start_date <= current_date <= end_date:
-                active.append(assessment_data)
-            elif end_date < current_date:
-                expired.append(assessment_data)
+            # Categorize based on dates and attempt status
+            if assessment.get("attempted", False):
+                previous_assessments.append(assessment_data)
+            elif assessment["start_date"] > current_date:
+                upcoming_assessments.append(assessment_data)
+            elif (assessment["start_date"] <= current_date and 
+                  assessment["end_date"] >= current_date):
+                active_assessments.append(assessment_data)
+            else:
+                previous_assessments.append(assessment_data)
 
         return {
             "status": "success",
             "data": {
-                "past_attempted": past_attempted,
-                "expired": expired,
-                "active": active,
-                "upcoming": upcoming
+                "previous_assessments": previous_assessments,
+                "active_assessments": active_assessments,
+                "upcoming_assessments": upcoming_assessments
             }
         }
 
@@ -264,4 +248,3 @@ def get_user_result(request: Request):
         "Grade":grade,
     }
 
-    
