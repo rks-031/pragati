@@ -122,12 +122,13 @@ const QuizPortal = () => {
 
     const submissions = Object.entries(selectedAnswers).map(([index, answer]) => ({
       questionIndex: parseInt(index),
-      selected: answer
+      selectedAnswer: answer // Ensure key matches backend expectations
     }));
 
     try {
       const response = await axios.post(`/api/v1/mark_assessment_attempted/${assessmentId}`, {
-        score: `${calculateScore()}/${quizData.length}`
+        score: `${calculateScore()}/${quizData.length}`,
+        submissions // Include submissions in the payload
       });
 
       navigate('/assessment', {

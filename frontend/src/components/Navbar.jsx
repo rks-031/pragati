@@ -21,8 +21,10 @@ function NavigationBar() {
     }
   };
 
+  const isActive = (path) => location.pathname === path;
+
   return (
-    <Navbar bg="light" expand="lg">
+    <Navbar bg="light" expand="lg" className="shadow-sm">
       <Container>
         <Navbar.Brand as={Link} to="/">
           <img
@@ -34,21 +36,55 @@ function NavigationBar() {
         </Navbar.Brand>
         <Navbar.Toggle aria-controls="basic-navbar-nav" />
         <Navbar.Collapse id="basic-navbar-nav">
-          {/* Show navigation items for students or non-logged in users */}
-          {(!userName || userRole !== 'teacher') && (
-            <Nav className="me-auto">
-              <Nav.Link as={Link} to="/assessment">Assessments</Nav.Link>
-              <Nav.Link as={Link} to="/modules-courses">Your Courses</Nav.Link>
-              <Nav.Link as={Link} to="/exam-preparation">Exam Preparation</Nav.Link>
-              <Nav.Link as={Link} to="/teach">Teach</Nav.Link>
-              <Nav.Link as={Link} to="/explore">Explore</Nav.Link>
-              <Nav.Link as={Link} to="/community">Community</Nav.Link>
-            </Nav>
-          )}
+          <Nav className="me-auto">
+            {(!userName || userRole !== 'teacher') && (
+              <>
+                <Nav.Link
+                  as={Link}
+                  to="/assessment"
+                  className={isActive('/assessment') ? 'active' : ''}
+                >
+                  Assessments
+                </Nav.Link>
+                <Nav.Link
+                  as={Link}
+                  to="/modules-courses"
+                  className={isActive('/modules-courses') ? 'active' : ''}
+                >
+                  Your Courses
+                </Nav.Link>
+                <Nav.Link
+                  as={Link}
+                  to="/exam-preparation"
+                  className={isActive('/exam-preparation') ? 'active' : ''}
+                >
+                  Exam Preparation
+                </Nav.Link>
+                <Nav.Link
+                  as={Link}
+                  to="/teach"
+                  className={isActive('/teach') ? 'active' : ''}
+                >
+                  Teach
+                </Nav.Link>
+                <Nav.Link
+                  as={Link}
+                  to="/explore"
+                  className={isActive('/explore') ? 'active' : ''}
+                >
+                  Explore
+                </Nav.Link>
+                <Nav.Link
+                  as={Link}
+                  to="/community"
+                  className={isActive('/community') ? 'active' : ''}
+                >
+                  Community
+                </Nav.Link>
+              </>
+            )}
 
-          {/* Show Upload Question Paper link for teachers on dashboard */}
-          {isTeacherOnDashboard && (
-            <Nav className="me-auto">
+            {isTeacherOnDashboard && (
               <Nav.Item>
                 <Button
                   variant="success"
@@ -59,21 +95,32 @@ function NavigationBar() {
                   Upload Question Paper
                 </Button>
               </Nav.Item>
-            </Nav>
-          )}
+            )}
+          </Nav>
 
           <Nav className="ms-auto">
             {userName ? (
               <Nav.Item>
-                <Button variant="danger" onClick={handleLogout}>Logout</Button>
+                <Button variant="danger" onClick={handleLogout}>
+                  Logout
+                </Button>
               </Nav.Item>
             ) : (
               <>
                 <Nav.Item>
-                  <Button variant="primary" as={Link} to="/login" className="mx-2">Login</Button>
+                  <Button
+                    variant="primary"
+                    as={Link}
+                    to="/login"
+                    className="mx-2"
+                  >
+                    Login
+                  </Button>
                 </Nav.Item>
                 <Nav.Item>
-                  <Button variant="success" as={Link} to="/register">Register</Button>
+                  <Button variant="success" as={Link} to="/register">
+                    Register
+                  </Button>
                 </Nav.Item>
               </>
             )}

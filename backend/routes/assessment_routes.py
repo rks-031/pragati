@@ -75,7 +75,7 @@ async def get_assessments(class_id: str):
         current_date = datetime.datetime.now().strftime("%Y-%m-%d")
         
         assessments_ref = db.collection("Question_papers")
-        query = assessments_ref.where(filter=FieldFilter("class", "==", class_id))
+        query = assessments_ref.where(filter=FieldFilter("class", "==", class_id))  # Filter by class
         docs = query.stream()
 
         previous_assessments = []
@@ -145,17 +145,21 @@ async def get_quiz(assessment_id: str):
         raise HTTPException(status_code=500, detail=str(e))
 
 @router.post("/mark_assessment_attempted/{assessment_id}")
-async def mark_assessment_attempted(assessment_id: str, score: str):
+async def mark_assessment_attempted(assessment_id: str, score: str, submissions: Optional[list] = None):
     try:
         db = firestore.Client()
         assessment_ref = db.collection("Question_papers").document(assessment_id)
         
         # Update the assessment document
-        assessment_ref.update({
+        update_data = {
             "attempted": True,
             "score": score,
             "attempt_date": datetime.datetime.now().strftime("%Y-%m-%d")
-        })
+        }
+        if submissions:
+            update_data["submissions"] = submissions  # Store submissions if provided
+
+        assessment_ref.update(update_data)
         
         return {"status": "success", "message": "Assessment marked as attempted"}
     except Exception as e:

@@ -29,7 +29,7 @@ const AssessmentDashboard = () => {
   useEffect(() => {
     const fetchAssessments = async () => {
       try {
-        const classId = localStorage.getItem('studentClass') || '5';
+        const classId = localStorage.getItem('studentClass') || '5'; // Fetch student's class
         const response = await axios.get(`/api/v1/get_assessments/${classId}`);
         
         if (response.data.status === 'success') {
