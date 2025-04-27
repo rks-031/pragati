@@ -55,12 +55,6 @@ A **low-bandwidth, offline-first learning platform** designed to empower rural s
 
 ---
 
-## 📊 User Flow
-
-![user-flow](image.png)
-
----
-
 ## 🖥️ Architecture Overview
 
 ![architecture](architecture.jpg)
