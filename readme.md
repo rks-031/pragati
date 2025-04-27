@@ -1,5 +1,5 @@
 
-# 🌱 Pragati — *Empowering Rural India Through Accessible Learning*
+# 👨🏽‍🎓 Pragati — *Empowering Rural India Through Accessible Learning*
 
 > *Bridging the digital divide with offline-first, multilingual, voice-enabled education for every child in rural India.*
 
