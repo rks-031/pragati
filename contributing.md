@@ -29,3 +29,10 @@ python run.py
 - Attach ***AmazonSNSFullAccess*** policy to it and create the user.
 - Once the user is created, create access key (Access Key and Secret Key will be generated).
 
+## Fetching latest code from repo keeping local uncommitted changes
+
+```bash
+git stash
+git pull
+git stash pop
+```

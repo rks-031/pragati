@@ -73,68 +73,65 @@ async def upload_assessment(
 
 
 @router.get("/get_assessments/{class_id}")
-async def get_assessments(request: Request, class_id: str):
+async def get_assessments(class_id: str):
     try:
         db = firestore.Client()
         current_date = datetime.datetime.now().strftime("%Y-%m-%d")
-        user_id = request.state.user_id
-
-        # Fetch assessments for class
+        
         assessments_ref = db.collection("Question_papers")
-        query = assessments_ref.where(filter=FieldFilter("class", "==", class_id))
+        query = assessments_ref.where(filter=FieldFilter("class", "==", class_id))  # Filter by class
         docs = query.stream()
 
-        # Fetch MongoDB scores for user
-        user_scores = get_user_report(user_id)
-        user_attempt_map = {score["assessment_id"]: score for score in user_scores}
-
-        # Prepare 4 categories
-        past_attempted = []
-        expired = []
-        active = []
-        upcoming = []
+        previous_assessments = []
+        active_assessments = []
+        upcoming_assessments = []
 
         for doc in docs:
             assessment = doc.to_dict()
-            assessment_id = doc.id
-            start_date = assessment.get("start_date")
-            end_date = assessment.get("end_date")
-            user_attempt = user_attempt_map.get(assessment_id)
-            is_attempted = user_attempt is not None
+            if not assessment:
+                logger.warning(f"Empty document found for class_id: {class_id}")
+                continue  # Skip empty or invalid documents
+
+            try:
+                chapters = json.loads(assessment.get("chapters", "[]"))
+            except json.JSONDecodeError:
+                logger.error(f"Invalid JSON in 'chapters' field for document {doc.id}")
+                chapters = []  # Default to an empty list if parsing fails
 
             assessment_data = {
-                "id": assessment_id,
-                "subject": assessment.get("subject"),
-                "chapters": eval(assessment.get("chapters", "[]")),
-                "start_date": start_date,
-                "end_date": end_date,
-                "file_name": assessment.get("file_name"),
-                "score": user_attempt.get("score") if is_attempted else "00/10",
-                "attempted": is_attempted
+                "id": doc.id,
+                "subject": assessment.get("subject", "Unknown Subject"),
+                "chapters": chapters,
+                "start_date": assessment.get("start_date", "1970-01-01"),
+                "end_date": assessment.get("end_date", "1970-01-01"),
+                "file_name": assessment.get("file_name", "Unknown File"),
+                "score": assessment.get("score", "00/10"),
+                "attempted": assessment.get("attempted", False)
             }
 
-            if is_attempted:
-                past_attempted.append(assessment_data)
-            elif start_date > current_date:
-                upcoming.append(assessment_data)
-            elif start_date <= current_date <= end_date:
-                active.append(assessment_data)
-            elif end_date < current_date:
-                expired.append(assessment_data)
+            # Categorize based on dates and attempt status
+            if assessment.get("attempted", False):
+                previous_assessments.append(assessment_data)
+            elif assessment["start_date"] > current_date:
+                upcoming_assessments.append(assessment_data)
+            elif (assessment["start_date"] <= current_date and 
+                  assessment["end_date"] >= current_date):
+                active_assessments.append(assessment_data)
+            else:
+                previous_assessments.append(assessment_data)
 
         return {
             "status": "success",
             "data": {
-                "past_attempted": past_attempted,
-                "expired": expired,
-                "active": active,
-                "upcoming": upcoming
+                "previous_assessments": previous_assessments,
+                "active_assessments": active_assessments,
+                "upcoming_assessments": upcoming_assessments
             }
         }
 
     except Exception as e:
         logger.error(f"Error fetching assessments: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail="Failed to fetch assessments")
 
 
 @router.get("/get_quiz/{assessment_id}")
@@ -169,61 +166,24 @@ async def get_quiz(request: Request,assessment_id: str):
         logger.error(f"Error fetching quiz: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
-
-@router.post("/submit_quiz/{assessment_id}")
-async def submit_quiz(
-    request: Request,
-    assessment_id: str,
-    submissions: List[AnswerSubmission]
-):
-    user_id = request.state.user_id
-    
-
-
+@router.post("/mark_assessment_attempted/{assessment_id}")
+async def mark_assessment_attempted(assessment_id: str, score: str, submissions: Optional[list] = None):
     try:
         db = firestore.Client()
-        doc = db.collection("Question_papers").document(assessment_id).get()
-
-        if not doc.exists:
-            raise HTTPException(status_code=404, detail="Assessment not found")
-
-        quiz_data = doc.to_dict()
-        extracted_text = quiz_data.get("extracted_text", "")
-        logger.info(f"Extracted text: {extracted_text}")
-
-        parsed_questions = parse_extracted_text(extracted_text)  # You must define this
-        total=len(parsed_questions)
-        logger.info(f"Parsed questions: {parsed_questions}")
-
-        score = 0
-        # total = len(submissions)
-        result_detail = []
-
-        for submission in submissions:
-            q_index = submission.questionIndex
-            selected = submission.selected.upper()
-            correct = parsed_questions[q_index]["answer"]
-            is_correct = selected == correct
-            if is_correct:
-                score += 1
-            result_detail.append({
-                "question": parsed_questions[q_index]["question"],
-                "selected": selected,
-                "correct": correct,
-                "isCorrect": is_correct
-            })
-
-        make_score_entry(assessment_id, user_id, score,total)
-
-        score_str = f"{score}/{total}"
-
-        return {
-            "status": "success",
-            "score_num": score,
-            "score": score_str,
-            "results": result_detail
+        assessment_ref = db.collection("Question_papers").document(assessment_id)
+        
+        # Update the assessment document
+        update_data = {
+            "attempted": True,
+            "score": score,
+            "attempt_date": datetime.datetime.now().strftime("%Y-%m-%d")
         }
+        if submissions:
+            update_data["submissions"] = submissions  # Store submissions if provided
 
+        assessment_ref.update(update_data)
+        
+        return {"status": "success", "message": "Assessment marked as attempted"}
     except Exception as e:
         logger.error(f"Error submitting quiz: {e}")
         raise HTTPException(status_code=500, detail=str(e))
@@ -288,4 +248,3 @@ def get_user_result(request: Request):
         "Grade":grade,
     }
 
-    

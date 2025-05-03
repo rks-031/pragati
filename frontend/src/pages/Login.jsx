@@ -55,10 +55,11 @@ function Login() {
       alert(response.data.msg);
 
       login(
-            response.data.name, 
-            response.data.role, 
-            response.data.qualification
-        );
+        response.data.name, 
+        response.data.role, 
+        response.data.qualification, 
+        response.data.role === 'student' ? response.data.student_class : null // Pass student class if role is student
+      );
         
       if (formData.role === 'teacher') {
         navigate('/upload-exam');

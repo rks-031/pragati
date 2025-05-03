@@ -1,0 +1,44 @@
+:root {
+    --footer-background: #343a40; /* Dark background for footer */
+    --footer-text-color: #ffffff; /* White text color */
+    --footer-link-color: #007bff; /* Vibrant link color */
+    --footer-link-hover-color: #0056b3; /* Darker shade on hover */
+}
+
+.footer {
+    background-color: var(--footer-background);
+    color: var(--footer-text-color);
+    padding: 2rem 0; /* Increased padding for a spacious look */
+    transition: background-color 0.3s ease; /* Smooth background transition */
+}
+
+.footer-title {
+    font-size: 1.5rem; /* Larger font size for title */
+    margin-bottom: 0.5rem; /* Space below title */
+}
+
+.footer-maintainers {
+    font-size: 1rem; /* Standard font size for maintainers */
+}
+
+.footer-link {
+    color: var(--footer-link-color);
+    text-decoration: none; /* Remove underline */
+    transition: color 0.3s ease; /* Smooth color transition */
+}
+
+.footer-link:hover {
+    color: var(--footer-link-hover-color); /* Change color on hover */
+}
+
+.footer-copy {
+    font-size: 0.875rem; /* Smaller font size for copyright */
+    margin-top: 1rem; /* Space above copyright */
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .footer-title {
+        font-size: 1.25rem; /* Adjust font size for smaller screens */
+    }
+}

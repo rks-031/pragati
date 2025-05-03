@@ -29,7 +29,11 @@ const AssessmentDashboard = () => {
   useEffect(() => {
     const fetchAssessments = async () => {
       try {
-        const classId = localStorage.getItem('studentClass') || '5';
+        const classId = localStorage.getItem('studentClass');
+        if (!classId) {
+          setError('Student class not found');
+          return;
+        }
         const response = await axios.get(`/api/v1/get_assessments/${classId}`);
         
         if (response.data.status === 'success') {
@@ -47,14 +51,8 @@ const AssessmentDashboard = () => {
       }
     };
 
-    // Show completion message if returning from quiz
-    if (location.state?.message) {
-      // You can add a toast notification here
-      console.log(location.state.message);
-    }
-
     fetchAssessments();
-  }, [location]);
+  }, []);
 
   const studentReport = {
     name: userName?.toUpperCase() || 'STUDENT',
@@ -73,133 +71,185 @@ const AssessmentDashboard = () => {
     navigate(`/quiz/${assessment.id}`);
   };
 
-  const renderAssessmentCard = (assessment, index, isUpcoming = false) => (
-    <div className="card mb-3" key={index}>
-      <div className="row g-0">
-        <div className="col-md-4">
-          <img src={assessment.image || maths} className="img-fluid rounded-start" alt={`${assessment.subject} resources`} />
+  const renderSkeletonLoader = () => {
+    return Array(2).fill().map((_, i) => (
+      <div className="assessment-card skeleton-card" key={`skeleton-${i}`}>
+        <div className="skeleton-image"></div>
+        <div className="skeleton-content">
+          <div className="skeleton-title"></div>
+          <div className="skeleton-badge"></div>
+          <div className="skeleton-text"></div>
+          <div className="skeleton-text"></div>
+          <div className="skeleton-button"></div>
         </div>
-        <div className="col-md-8">
-          <div className="card-body">
-            <h5 className="card-title">{assessment.subject}</h5>
-            <span className="badge" style={{ backgroundColor: assessment.color || '#A4B8C4' }}>
-              {assessment.score}
-            </span>
-            <p className="card-text">
-              <small className="text-muted">Start: {formatDate(assessment.start_date)}</small><br />
-              <small className="text-muted">End: {formatDate(assessment.end_date)}</small>
-            </p>
-          </div>
-          <div className="card-footer">
-            {assessment.attempted ? (
-              <div className="text-success">
-                Completed - Score: {assessment.score}
+      </div>
+    ));
+  };
+
+  const renderAssessmentCard = (assessment, index, isUpcoming = false) => {
+    const currentDate = new Date();
+    const endDate = new Date(assessment.end_date);
+    const isExpired = endDate < currentDate;
+    
+    let daysRemaining = null;
+    if (!isUpcoming && !isExpired && !assessment.attempted) {
+      const diffTime = Math.abs(endDate - currentDate);
+      daysRemaining = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    }
+
+    return (
+      <div className="assessment-card" key={index}>
+        <div className="assessment-card-inner">
+          <div className="assessment-image">
+            <img src={assessment.image || maths} alt={`${assessment.subject} resources`} />
+            {assessment.attempted && (
+              <div className="status-badge completed">
+                <span>Completed</span>
               </div>
-            ) : !isUpcoming && (
-              <button 
-                className="btn btn-primary"
-                onClick={() => handleStartQuiz(assessment)}
-                disabled={!assessment.id}
-              >
-                Start Quiz
-              </button>
+            )}
+            {isExpired && !assessment.attempted && (
+              <div className="status-badge expired">
+                <span>Expired</span>
+              </div>
             )}
             {isUpcoming && (
-              <span className="text-muted">
-                Available from {formatDate(assessment.start_date)}
-              </span>
+              <div className="status-badge upcoming">
+                <span>Upcoming</span>
+              </div>
             )}
+          </div>
+          <div className="assessment-content">
+            <div className="assessment-header">
+              <h3 className="assessment-title">{assessment.subject}</h3>
+              {assessment.score && (
+                <span className="score-badge" style={{ backgroundColor: assessment.color || '#A4B8C4' }}>
+                  {assessment.score}
+                </span>
+              )}
+            </div>
+            <div className="assessment-dates">
+              <div className="date-item">
+                <span className="date-label">Start:</span>
+                <span className="date-value">{formatDate(assessment.start_date)}</span>
+              </div>
+              <div className="date-item">
+                <span className="date-label">End:</span>
+                <span className="date-value">{formatDate(assessment.end_date)}</span>
+              </div>
+            </div>
+            
+            <div className="assessment-actions">
+              {assessment.attempted ? (
+                <div className="assessment-result">
+                  <span className="result-label">Score:</span>
+                  <span className="result-value">{assessment.score}</span>
+                </div>
+              ) : isExpired ? (
+                <div className="tooltip-container">
+                  <button className="btn-disabled" disabled>
+                    Expired
+                  </button>
+                  <div className="tooltip-message">
+                    <p>😔 Sorry, the final date to attempt this exam has passed. You cannot attempt it now. Be aware for next time! 🕒📚</p>
+                  </div>
+                </div>
+              ) : !isUpcoming && (
+                <div className="action-container">
+                  <button 
+                    className="btn-primary"
+                    onClick={() => handleStartQuiz(assessment)}
+                    disabled={!assessment.id}
+                  >
+                    Start Quiz
+                  </button>
+                  {daysRemaining && (
+                    <span className="days-remaining">
+                      {daysRemaining} day{daysRemaining !== 1 ? 's' : ''} remaining
+                    </span>
+                  )}
+                </div>
+              )}
+              {isUpcoming && (
+                <span className="upcoming-message">
+                  Available from {formatDate(assessment.start_date)}
+                </span>
+              )}
+            </div>
           </div>
         </div>
       </div>
-    </div>
-  );
+    );
+  };
+
+  const renderAssessmentSection = (title, assessmentList, isUpcoming = false) => {
+    return (
+      <section className="assessment-section">
+        <h2 className="section-title">{title}</h2>
+        {loading ? (
+          <div className="assessment-list">{renderSkeletonLoader()}</div>
+        ) : error ? (
+          <div className="error-message">{error}</div>
+        ) : (
+          <div className="assessment-list">
+            {(assessmentList || []).map((assessment, index) => 
+              renderAssessmentCard(assessment, index, isUpcoming)
+            )}
+            {assessmentList?.length === 0 && (
+              <div className="empty-state">
+                <p>No {title.toLowerCase()} found</p>
+              </div>
+            )}
+          </div>
+        )}
+      </section>
+    );
+  };
 
   return (
-    <div className="container-fluid">
-      <div className="row">
-        <div className="col-md-8">
-          <div className="text-center mb-4">
-            <img src={studyingImage} alt="Student studying" className="img-fluid" style={{ height: '300px' }} />
-          </div>
-          
-          <h2 className="section-title">Active Assessments</h2>
-          {loading ? (
-            <p>Loading...</p>
-          ) : error ? (
-            <p>{error}</p>
-          ) : (
-            <div className="assessment-cards">
-              {(assessments.active || []).map((assessment, index) => 
-                renderAssessmentCard(assessment, index)
-              )}
-              {assessments.active?.length === 0 && (
-                <p>No active assessments available</p>
-              )}
-            </div>
-          )}
-          
-          <h2 className="section-title">Upcoming Assessments</h2>
-          {loading ? (
-            <p>Loading...</p>
-          ) : error ? (
-            <p>{error}</p>
-          ) : (
-            <div className="assessment-cards">
-              {(assessments.upcoming || []).map((assessment, index) => 
-                renderAssessmentCard(assessment, index, true)
-              )}
-              {assessments.upcoming?.length === 0 && (
-                <p>No upcoming assessments scheduled</p>
-              )}
-            </div>
-          )}
-          
-          <h2 className="section-title">Previous Assessments</h2>
-          {loading ? (
-            <p>Loading...</p>
-          ) : error ? (
-            <p>{error}</p>
-          ) : (
-            <div className="assessment-cards">
-              {(assessments.previous || []).map((assessment, index) => 
-                renderAssessmentCard(assessment, index)
-              )}
-              {assessments.previous?.length === 0 && (
-                <p>No previous assessments found</p>
-              )}
-            </div>
-          )}
-        </div>
+    <div className="dashboard-container">
+      <div className="dashboard-content">
+        <main className="assessments-container">
+          {renderAssessmentSection("Active Assessments", assessments.active)}
+          {renderAssessmentSection("Upcoming Assessments", assessments.upcoming, true)}
+          {renderAssessmentSection("Previous Assessments", assessments.previous)}
+        </main>
         
-        <div className="col-md-4">
-          <div className="profile-section">
-            <div className="text-center mb-3">
-              <img src="https://placehold.co/150x150?text=Profile" alt="Student profile" className="img-fluid rounded-circle" />
+        <aside className="profile-container">
+          <div className="profile-card">
+            <div className="profile-header">
+              <div className="profile-image">
+                <img src="https://placehold.co/150x150?text=Profile" alt="Student profile" />
+              </div>
+              <h2 className="profile-name">{studentReport.name}</h2>
             </div>
-            <h2 className="student-name">{studentReport.name}</h2>
-            <div className="report-header">REPORT</div>
             
-            <div className="report-card">
-              <div className="report-item">
-                <span className="report-label">Exam given:</span>
-                <span className="report-value">{studentReport.examGiven}</span>
+            <div className="report-section">
+              <h3 className="report-title">Performance Report</h3>
+              
+              <div className="report-stats">
+                <div className="stat-item">
+                  <div className="stat-value">{studentReport.examGiven}</div>
+                  <div className="stat-label">Exams Taken</div>
+                </div>
+                <div className="stat-item">
+                  <div className="stat-value">{studentReport.passedIn}</div>
+                  <div className="stat-label">Passed</div>
+                </div>
+                <div className="stat-item">
+                  <div className="stat-value">{studentReport.failedIn}</div>
+                  <div className="stat-label">Failed</div>
+                </div>
               </div>
-              <div className="report-item">
-                <span className="report-label">Passed in:</span>
-                <span className="report-value">{studentReport.passedIn}</span>
-              </div>
-              <div className="report-item">
-                <span className="report-label">Failed in:</span>
-                <span className="report-value">{studentReport.failedIn}</span>
-              </div>
-              <div className="grade-container">
-                <span className="grade-label">Grade:</span>
-                <span className="grade-value">{studentReport.grade}</span>
+              
+              <div className="grade-display">
+                <div className="grade-circle">
+                  <span className="grade-text">{studentReport.grade}</span>
+                </div>
+                <span className="grade-label">Overall Grade</span>
               </div>
             </div>
           </div>
-        </div>
+        </aside>
       </div>
     </div>
   );

@@ -89,7 +89,8 @@ async def login(user: LoginModel, response: Response):
         "name": existing["name"],
         "access_token": token,
         "role": existing["role"],
-        "qualification": qualification  
+        "qualification": qualification,
+        "student_class": existing.get("student_class", None) if user.role == "student" else None  # Include student class
     }
 
 @router.post("/forgot-password")
