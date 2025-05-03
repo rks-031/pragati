@@ -42,13 +42,9 @@ Map nearby physical locations with reliable internet access where content can be
 
 [Subject to modifications👆🏻]
 
-### User Flow
-
-![user-flow](image.png)
-
 ### Architecture
 
-![architecture](architecture.jpg)
+![architecture](./Pragati%20Architecture.png)
 
 ### UI (Figma Preview)
 

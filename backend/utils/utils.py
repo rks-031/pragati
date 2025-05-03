@@ -77,8 +77,6 @@ def generate_unique_username(base_username: str) -> str:
 #     return questions
 
 
-
-
 def parse_extracted_text(text: str):
     pattern = re.compile(
         r"\d+\.\s*(.*?)\n" +  # Question
