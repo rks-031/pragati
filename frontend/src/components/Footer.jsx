@@ -8,7 +8,7 @@ function Footer() {
       <Container>
         <Row className="mb-3">
           <Col className="text-center">
-            <h5>Made with ❣️ by Team Strangers</h5>
+            <h5>Made with ❤️ by Team Strangers</h5>
             <p>
               Maintainers:{' '}
               <Link
